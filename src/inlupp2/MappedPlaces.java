@@ -66,7 +66,8 @@ public class MappedPlaces extends JFrame {
     
     private MapPanel pnlMainPane = new MapPanel();
     // Test 2015-07-12
-    private JScrollPane spCentralArea;
+    // Add JScrollPane around the map
+//    private JScrollPane spCentralArea;
     
     private JComboBox<String> 			cbxPlaceTypes 	= new JComboBox<>();
     private DefaultListModel<PlaceCategory> 	lstmod 		= new DefaultListModel<>();
@@ -133,10 +134,10 @@ public class MappedPlaces extends JFrame {
 //	centralArea.addMouseListener(mAdapt);
 	
 	// Test 2015-07-12
-//	add(pnlMainPane, BorderLayout.CENTER);
-	spCentralArea = new JScrollPane(pnlMainPane, JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED, 
-			JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED);
-	add(spCentralArea, BorderLayout.CENTER);
+	add(pnlMainPane, BorderLayout.CENTER);
+//	spCentralArea = new JScrollPane(pnlMainPane, JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED, 
+//			JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED);
+//	add(spCentralArea, BorderLayout.CENTER);
 		
 		
 	// Add top panel with buttons and other elements
@@ -285,12 +286,15 @@ public class MappedPlaces extends JFrame {
 //	    MapPanel oldCenter = pnlCenter;
 	    try {
 		// Test 2015-07-12
-		spCentralArea.remove(pnlMainPane);
-	        remove(spCentralArea);
+//		spCentralArea.remove(pnlMainPane);
+//	        remove(spCentralArea);
+//	        pnlMainPane = new MapPanel(bgImage);
+//	        spCentralArea = new JScrollPane(pnlMainPane, JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED, 
+//				JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED);
+//	        add(spCentralArea, BorderLayout.CENTER);
+	        remove(pnlMainPane);
 	        pnlMainPane = new MapPanel(bgImage);
-	        spCentralArea = new JScrollPane(pnlMainPane, JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED, 
-				JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED);
-	        add(spCentralArea, BorderLayout.CENTER);
+	        add(pnlMainPane, BorderLayout.CENTER);
 	        lstmod.clear();
 	        docfile = "";
             } catch (Exception e) {
@@ -349,12 +353,12 @@ public class MappedPlaces extends JFrame {
 	    jfc.resetChoosableFileFilters();
 	    try {
 		// Test 2015-07-12
-		spCentralArea.remove(pnlMainPane);
-//		remove(pnlMainPane);
+//		spCentralArea.remove(pnlMainPane);
+		remove(pnlMainPane);
 		lstmod.clear();
 		pnlMainPane = new MapPanel(file);
-		spCentralArea.add(pnlMainPane);
-//	        add(pnlMainPane, BorderLayout.CENTER);	        
+//		spCentralArea.add(pnlMainPane);
+	        add(pnlMainPane, BorderLayout.CENTER);	        
 //	        pnlMainPane.loadData(file);
 	        for(Component comp : pnlMainPane.getComponents())
 		    comp.addMouseListener(pAdapt);
