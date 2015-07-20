@@ -1,0 +1,10 @@
+# bin directory
+bin
+
+# UML files created by other programs
+/Places.xmi
+/Places.uml
+/Places.zargo
+
+# backups and duplicates
+*~
