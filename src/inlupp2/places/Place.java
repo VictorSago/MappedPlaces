@@ -58,7 +58,7 @@ public abstract class Place extends JComponent implements Serializable {
 	this.position = pos;
 	this.category = cat;
 	this.folded = true;
-	this.selected = true;
+	this.selected = false;
 //	int x0 = (int) (position.getX() - triWidth/2);
 //	int y0 = (int) (position.getY() - triHight);
 //	int wi = triWidth;
@@ -80,16 +80,17 @@ public abstract class Place extends JComponent implements Serializable {
     }
     
     abstract protected void setUnfoldedSize();
-
+    
     protected void paintComponent(Graphics g) {
-	System.out.println("paintComponent method in Place(Super):");
-	if (this.category != null)
-	    if (category.isHidden())
-		return;
 	if (!this.isVisible()) {
 	    return;
 	}
+	if (this.category != null)
+	    if (category.isHidden())
+		return;
 	super.paintComponent(g);
+	this.setFoldedSize();
+	this.setOpaque(true);
 	Color colOut;
 	Color colIn;
 	// The points of the triangle are defined in the following order:
@@ -102,14 +103,14 @@ public abstract class Place extends JComponent implements Serializable {
 	int[] yi2Points = {yPoints[0] - d*2, yPoints[1] + d*2, yPoints[2] + d*2};
 	if (category != null) {
 	    colOut = category.getColor();
-        } else {
-            colOut = Color.DARK_GRAY;
-        }
+	} else {
+	    colOut = Color.DARK_GRAY;
+	}
 	int newAlpha = (int) (colOut.getAlpha()*alphaRel);
 	colIn = new Color(colOut.getRed(), colOut.getGreen(), colOut.getBlue(), newAlpha);
-//	colIn = Color.WHITE;
-
-	g.setColor(colIn);	
+	
+	g.setColor(colIn);
+//	g.fillOval(0, 0, getWidth(), getHeight());
 	g.fillPolygon(xPoints, yPoints, 3);	
 	g.setColor(colOut);
 	g.drawPolygon(xiPoints, yiPoints, 3);
@@ -117,7 +118,6 @@ public abstract class Place extends JComponent implements Serializable {
 	g.setColor(Color.BLACK);
 	g.drawPolygon(xPoints, yPoints, 3);
 	
-	// Paint a border if this place is selected
 	Border selectedBorder = BorderFactory.createLineBorder(Color.GRAY, 1);
 	Border unselectedBorder = BorderFactory.createEmptyBorder();
 	if (this.selected) {
@@ -126,6 +126,58 @@ public abstract class Place extends JComponent implements Serializable {
 	    this.setBorder(unselectedBorder);
 	}
     }
+
+//    protected void paintComponent(Graphics g) {
+//	System.out.print("a1 ");
+//	if (this.category != null)
+//	    if (category.isHidden())
+//		return;
+//	if (!this.isVisible()) {
+//	    return;
+//	}
+//	super.paintComponent(g);
+//	this.setFoldedSize();
+//	System.out.print("a2 ");
+//	Color colOut;
+//	Color colIn;
+//	// The points of the triangle are defined in the following order:
+//	// 1 - the lower point, 2 - the upper left corner, 3 - the upper right corner
+//	int[] xPoints = {triWidth/2, 0, triWidth};
+//	int[] yPoints = {triHight, 0, 0};
+//	int[] xiPoints = {xPoints[0], xPoints[1] + d, xPoints[2] - d};
+//	int[] yiPoints = {yPoints[0] - d, yPoints[1] + d, yPoints[2] + d};
+//	int[] xi2Points = {xPoints[0], xPoints[1] + d*2, xPoints[2] - d*2};
+//	int[] yi2Points = {yPoints[0] - d*2, yPoints[1] + d*2, yPoints[2] + d*2};
+//	if (category != null) {
+//	    colOut = category.getColor();
+//        } else {
+//            colOut = Color.DARK_GRAY;
+//        }
+//	int newAlpha = (int) (colOut.getAlpha()*alphaRel);
+//	colIn = new Color(colOut.getRed(), colOut.getGreen(), colOut.getBlue(), newAlpha);
+////	colIn = Color.WHITE;
+//
+//	g.setColor(colIn);	
+//	g.fillPolygon(xPoints, yPoints, 3);	
+//	g.setColor(colOut);
+//	g.drawPolygon(xiPoints, yiPoints, 3);
+//	g.drawPolygon(xi2Points, yi2Points, 3);
+//	g.setColor(Color.BLACK);
+//	g.drawPolygon(xPoints, yPoints, 3);
+//	
+//	System.out.print("a3 ");
+//	
+//	// Paint a border if this place is selected
+//	Border selectedBorder = BorderFactory.createLineBorder(Color.GRAY, 1);
+//	Border unselectedBorder = BorderFactory.createEmptyBorder();
+//	if (this.selected) {
+//	    System.out.print("a4a ");
+//	    this.setBorder(selectedBorder);
+//	} else {
+//	    System.out.print("a4b ");
+//	    this.setBorder(unselectedBorder);
+//	}
+//    }
     
     public String getName() {
 	return name;

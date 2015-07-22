@@ -90,33 +90,26 @@ public class DescribedPlace extends Place {
     }
     
     protected void paintComponent(Graphics g) {
-	System.out.println("paintComponent method in DecribedPlace:");
 	if (this.folded) {
-	    System.out.println("This DecribedPlace is folded - delegating to Super");
 	    super.paintComponent(g);
 	} else {
-	    System.out.println("This DecribedPlace is unfolded - painting here");
+	    this.setOpaque(true);
 	    this.setUnfoldedSize();
-	    Color colIn;
+	    
+	    Color colIn = Color.YELLOW;
 	    Color colOut;
 	    if (category != null) {
 		colOut = category.getColor();
 	    } else {
 		colOut = Color.DARK_GRAY;
 	    }
-//	    int newAlpha = (int) (colOut.getAlpha()*alphaRel);
-//	    colIn = new Color(colOut.getRed(), colOut.getGreen(), colOut.getBlue(), newAlpha);
-	    colIn = new Color(255, 255, 0, 160);
-	    int x0 = this.getX();
-	    int y0 = this.getY();
-	    int wi = this.getWidth();
-	    int hi = this.getHeight();
+	    
 	    g.setColor(colIn);
-	    g.fillRect(x0+2, y0+2, wi-4, hi-4);
+	    g.fillRect(0+1, 0+1, this.getWidth()-3, this.getHeight()-3);
 	    g.setColor(colOut);
-	    g.drawString(getName(), x0 + 8, y0+16);
-	    g.drawString(description, x0 + 2, y0+32);
-	    // Paint a border if this place is selected
+	    g.drawString(getName(), 0 + 8, 0+16);
+	    g.drawString(description, 0 + 2, 0+32);
+	    
 	    Border selectedBorder = BorderFactory.createLineBorder(Color.GRAY, 1);
 	    Border unselectedBorder = BorderFactory.createEmptyBorder();
 	    if (this.selected) {
@@ -126,6 +119,47 @@ public class DescribedPlace extends Place {
 	    }
 	}
     }
+    
+//    protected void paintComponent(Graphics g) {
+//	System.out.print("c1 ");
+//	if (this.folded) {
+//	    System.out.print("c1a ");
+//	    super.paintComponent(g);
+//	} else {
+//	    System.out.print("c1b ");
+//	    this.setUnfoldedSize();
+//	    Color colIn;
+//	    Color colOut;
+//	    if (category != null) {
+//		colOut = category.getColor();
+//	    } else {
+//		colOut = Color.DARK_GRAY;
+//	    }
+////	    int newAlpha = (int) (colOut.getAlpha()*alphaRel);
+////	    colIn = new Color(colOut.getRed(), colOut.getGreen(), colOut.getBlue(), newAlpha);
+//	    colIn = new Color(255, 255, 0, 160);
+//	    int x0 = this.getX();
+//	    int y0 = this.getY();
+//	    int wi = this.getWidth();
+//	    int hi = this.getHeight();
+//	    g.setColor(colIn);
+//	    g.fillRect(x0+2, y0+2, wi-4, hi-4);
+//	    g.setColor(colOut);
+//	    g.drawString(getName(), x0 + 8, y0+16);
+//	    g.drawString(description, x0 + 2, y0+32);
+//	    System.out.print("c2 ");
+//	    // Paint a border if this place is selected
+//	    Border selectedBorder = BorderFactory.createLineBorder(Color.GRAY, 1);
+//	    Border unselectedBorder = BorderFactory.createEmptyBorder();
+//	    if (this.selected) {
+//		System.out.print("c3a ");
+//		this.setBorder(selectedBorder);
+//	    } else {
+//		System.out.print("c3b ");
+//		this.setBorder(unselectedBorder);
+//	    }
+//	}
+//    }
     
     public String getDescription() {
 	return this.description;

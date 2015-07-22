@@ -56,7 +56,7 @@ public class NamedPlace extends Place {
     protected void setUnfoldedSize() {
 	int x0 = (int) (position.getX() - triWidth/2);
 	int y0 = (int) (position.getY() - triHight);
-	int wi = triWidth * 4;
+	int wi = triWidth * 5;
 	int hi = triHight * 2;
 	setBounds(x0, y0, wi, hi);
 	Dimension d = new Dimension(wi, hi);
@@ -64,27 +64,21 @@ public class NamedPlace extends Place {
     }
     
     protected void paintComponent(Graphics g) {
-	System.out.println("paintComponent method in NamedPlace:");
 	if (this.folded) {
-	    System.out.println("This NamedPlace is folded - delegating to Super");
 	    super.paintComponent(g);
 	} else {
-	    System.out.println("This NamedPlace is unfolded - painting here");
+	    this.setOpaque(true);
 	    this.setUnfoldedSize();
-	    Color colOut;
+	    Color col;
 	    if (category != null) {
-		colOut = category.getColor();
+		col = category.getColor();
 	    } else {
-		colOut = Color.DARK_GRAY;
+		col = Color.DARK_GRAY;
 	    }
-	    int x0 = this.getX();
-	    int y0 = this.getY();
-	    int wi = this.getWidth();
-	    int hi = this.getHeight();
-	    g.setColor(colOut);
-	    g.drawRect(x0+2, y0+2, wi-4, hi-4);
-	    g.drawString(getName(), x0 + 8, (hi-4)/2);
-	    // Paint a border if this place is selected
+	    g.setColor(col);
+	    g.drawRect(0+1, 0+1, this.getWidth()-3, this.getHeight()-3);
+//	    g.setColor(Color.BLACK);
+	    g.drawString(getName(), 0 + 4, (getHeight()-4)/2);
 	    Border selectedBorder = BorderFactory.createLineBorder(Color.GRAY, 1);
 	    Border unselectedBorder = BorderFactory.createEmptyBorder();
 	    if (this.selected) {
@@ -94,6 +88,41 @@ public class NamedPlace extends Place {
 	    }
 	}
     }
+    
+//    protected void paintComponent(Graphics g) {
+//	System.out.print("b1 ");
+//	if (this.folded) {
+//	    System.out.print("b1a ");
+//	    super.paintComponent(g);
+//	} else {
+//	    System.out.print("b1b ");
+//	    this.setUnfoldedSize();
+//	    Color colOut;
+//	    if (category != null) {
+//		colOut = category.getColor();
+//	    } else {
+//		colOut = Color.DARK_GRAY;
+//	    }
+//	    int x0 = this.getX();
+//	    int y0 = this.getY();
+//	    int wi = this.getWidth();
+//	    int hi = this.getHeight();
+//	    g.setColor(colOut);
+//	    g.drawRect(x0+2, y0+2, wi-4, hi-4);
+//	    g.drawString(getName(), x0 + 8, (hi-4)/2);
+//	    System.out.print("b2 ");
+//	    // Paint a border if this place is selected
+//	    Border selectedBorder = BorderFactory.createLineBorder(Color.GRAY, 1);
+//	    Border unselectedBorder = BorderFactory.createEmptyBorder();
+//	    if (this.selected) {
+//		System.out.print("b3a ");
+//		this.setBorder(selectedBorder);
+//	    } else {
+//		System.out.print("b3b ");
+//		this.setBorder(unselectedBorder);
+//	    }
+//	}
+//    }
     
     @Override
     public boolean equals(Object other) {
