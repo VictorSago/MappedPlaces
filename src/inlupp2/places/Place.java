@@ -23,22 +23,24 @@ public abstract class Place extends JComponent implements Serializable {
     
     private static final long serialVersionUID = 1L;
     
-    protected final int triWidth = 16;
-    protected final int triHight = 24;
-    protected final float alphaRel = 0.75f;
-//    protected final float thickness = 2;
-    private final int d = 1;
+    protected static final int triWidth = 16;
+    protected static final int triHight = 24;
+    protected static final float alphaRel = 0.75f;
+//    protected static final float thickness = 2;
+    private static final int d = 1;
     
     protected String          name;
     protected PlacePosition   position;
     protected PlaceCategory   category;
     protected boolean         folded, selected;
+    
+    protected static Border selectedBorder = BorderFactory.createLineBorder(Color.GRAY, 1);
+    protected static Border unselectedBorder = BorderFactory.createEmptyBorder();
 
     /**
      * New objects of this class can't be instantiated without attributes
      */
     Place() {
-	// TODO Auto-generated constructor stub
     }
     
     /**
@@ -59,14 +61,7 @@ public abstract class Place extends JComponent implements Serializable {
 	this.category = cat;
 	this.folded = true;
 	this.selected = false;
-//	int x0 = (int) (position.getX() - triWidth/2);
-//	int y0 = (int) (position.getY() - triHight);
-//	int wi = triWidth;
-//	int hi = triHight;
-//	setBounds(x0, y0, wi, hi);
-//	Dimension d = new Dimension(wi, hi);
-//	setPreferredSize(d);
-	this.setFoldedSize();
+	setFoldedSize();
     }
     
     protected void setFoldedSize() {
@@ -77,9 +72,10 @@ public abstract class Place extends JComponent implements Serializable {
 	setBounds(x0, y0, wi, hi);
 	Dimension d = new Dimension(wi, hi);
 	setPreferredSize(d);
+	validate();
     }
     
-    abstract protected void setUnfoldedSize();
+    protected abstract void setUnfoldedSize();
     
     protected void paintComponent(Graphics g) {
 	if (!this.isVisible()) {
@@ -89,7 +85,7 @@ public abstract class Place extends JComponent implements Serializable {
 	    if (category.isHidden())
 		return;
 	super.paintComponent(g);
-	this.setFoldedSize();
+//	this.setFoldedSize();
 	this.setOpaque(true);
 	Color colOut;
 	Color colIn;
@@ -118,12 +114,12 @@ public abstract class Place extends JComponent implements Serializable {
 	g.setColor(Color.BLACK);
 	g.drawPolygon(xPoints, yPoints, 3);
 	
-	Border selectedBorder = BorderFactory.createLineBorder(Color.GRAY, 1);
-	Border unselectedBorder = BorderFactory.createEmptyBorder();
+//	Border selectedBorder = BorderFactory.createLineBorder(Color.GRAY, 1);
+//	Border unselectedBorder = BorderFactory.createEmptyBorder();
 	if (this.selected) {
-	    this.setBorder(selectedBorder);
+	    this.setBorder(Place.selectedBorder);
 	} else {
-	    this.setBorder(unselectedBorder);
+	    this.setBorder(Place.unselectedBorder);
 	}
     }
 
@@ -201,6 +197,10 @@ public abstract class Place extends JComponent implements Serializable {
 
     public void setFolded(boolean val) {
 	this.folded = val;
+	if (folded)
+	    this.setFoldedSize();
+	else
+	    this.setUnfoldedSize();
     }
 
     public boolean isSelected() {

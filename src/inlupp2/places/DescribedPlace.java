@@ -8,12 +8,18 @@
 
 package inlupp2.places;
 
+import inlupp2.resources.StringUtils;
+
 import java.awt.Color;
 import java.awt.Dimension;
+import java.awt.FontMetrics;
 import java.awt.Graphics;
+import java.util.ArrayList;
 
-import javax.swing.BorderFactory;
-import javax.swing.border.Border;
+//import javax.swing.JTextArea;
+
+//import javax.swing.BorderFactory;
+//import javax.swing.border.Border;
 
 public class DescribedPlace extends Place {
     
@@ -21,12 +27,17 @@ public class DescribedPlace extends Place {
     
     private String description;
     
+    // Test 2015-07-26
+//    private JTextArea ta;
+    
+    // Test 2015-07-27
+    private ArrayList<String> descriptionSplit;
+    
     /**
      * private constructor to prevent instantiation without attributes
      */
     @SuppressWarnings("unused")
     private DescribedPlace() {
-	// TODO
     }
 
     /**
@@ -34,7 +45,6 @@ public class DescribedPlace extends Place {
      */
     @SuppressWarnings("unused")
     private DescribedPlace(String name) {
-	// TODO Auto-generated constructor stub
     }
 
     /**
@@ -64,7 +74,6 @@ public class DescribedPlace extends Place {
     public DescribedPlace(String name, PlacePosition pos, String descr) {
 	super(name, pos, null);
 	this.description = descr;
-	// TODO Auto-generated constructor stub
     }
     
     /**
@@ -76,17 +85,31 @@ public class DescribedPlace extends Place {
     public DescribedPlace(String name, PlacePosition pos, PlaceCategory cat, String descr) {
 	super(name, pos, cat);
 	this.description = descr;
-	// TODO Auto-generated constructor stub
     }
+    
+    // Test 2015-07-26
+//    protected void setFoldedSize() {
+//	this.remove(ta);
+//	super.setFoldedSize();
+//    }
     
     protected void setUnfoldedSize() {
 	int x0 = (int) (position.getX() - triWidth/2);
 	int y0 = (int) (position.getY() - triHight);
 	int wi = triWidth * 4;
 	int hi = triHight * 10;
+	
+	// Test 2015-07-27
+	if (descriptionSplit == null || descriptionSplit.isEmpty()) {
+	    FontMetrics fm = this.getFontMetrics(getFont());
+	    descriptionSplit = new ArrayList<String>(StringUtils.wrap(description, fm, wi));
+	}
+	
 	setBounds(x0, y0, wi, hi);
 	Dimension d = new Dimension(wi, hi);
 	setPreferredSize(d);
+
+	validate();
     }
     
     protected void paintComponent(Graphics g) {
@@ -94,7 +117,7 @@ public class DescribedPlace extends Place {
 	    super.paintComponent(g);
 	} else {
 	    this.setOpaque(true);
-	    this.setUnfoldedSize();
+//	    this.setUnfoldedSize();	    
 	    
 	    Color colIn = Color.YELLOW;
 	    Color colOut;
@@ -107,15 +130,23 @@ public class DescribedPlace extends Place {
 	    g.setColor(colIn);
 	    g.fillRect(0+1, 0+1, this.getWidth()-3, this.getHeight()-3);
 	    g.setColor(colOut);
-	    g.drawString(getName(), 0 + 8, 0+16);
-	    g.drawString(description, 0 + 2, 0+32);
 	    
-	    Border selectedBorder = BorderFactory.createLineBorder(Color.GRAY, 1);
-	    Border unselectedBorder = BorderFactory.createEmptyBorder();
+	    // Test 2015-07-27
+	    FontMetrics fm = g.getFontMetrics();
+	    int hi = fm.getHeight();
+//	    g.drawString(getName(), 0 + 8, 0+16);
+	    g.drawString(getName(), fm.getMaxAdvance(), hi+2);
+//	    g.drawString(description, 0 + 2, 0+32);
+	    for (int i = 0; i < descriptionSplit.size(); i++) {
+		g.drawString(descriptionSplit.get(i), 0+1, hi*(i+2)+2);
+	    }
+	    
+//	    Border selectedBorder = BorderFactory.createLineBorder(Color.GRAY, 1);
+//	    Border unselectedBorder = BorderFactory.createEmptyBorder();
 	    if (this.selected) {
-		this.setBorder(selectedBorder);
+		this.setBorder(Place.selectedBorder);
 	    } else {
-		this.setBorder(unselectedBorder);
+		this.setBorder(Place.unselectedBorder);
 	    }
 	}
     }

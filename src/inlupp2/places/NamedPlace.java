@@ -12,8 +12,8 @@ import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Graphics;
 
-import javax.swing.BorderFactory;
-import javax.swing.border.Border;
+//import javax.swing.BorderFactory;
+//import javax.swing.border.Border;
 
 public class NamedPlace extends Place {
     
@@ -54,6 +54,7 @@ public class NamedPlace extends Place {
     }
     
     protected void setUnfoldedSize() {
+//	NamedPlace np = (NamedPlace) p;
 	int x0 = (int) (position.getX() - triWidth/2);
 	int y0 = (int) (position.getY() - triHight);
 	int wi = triWidth * 5;
@@ -68,7 +69,7 @@ public class NamedPlace extends Place {
 	    super.paintComponent(g);
 	} else {
 	    this.setOpaque(true);
-	    this.setUnfoldedSize();
+	    setUnfoldedSize();
 	    Color col;
 	    if (category != null) {
 		col = category.getColor();
@@ -79,12 +80,12 @@ public class NamedPlace extends Place {
 	    g.drawRect(0+1, 0+1, this.getWidth()-3, this.getHeight()-3);
 //	    g.setColor(Color.BLACK);
 	    g.drawString(getName(), 0 + 4, (getHeight()-4)/2);
-	    Border selectedBorder = BorderFactory.createLineBorder(Color.GRAY, 1);
-	    Border unselectedBorder = BorderFactory.createEmptyBorder();
+//	    Border selectedBorder = BorderFactory.createLineBorder(Color.GRAY, 1);
+//	    Border unselectedBorder = BorderFactory.createEmptyBorder();
 	    if (this.selected) {
-		this.setBorder(selectedBorder);
+		this.setBorder(Place.selectedBorder);
 	    } else {
-		this.setBorder(unselectedBorder);
+		this.setBorder(Place.unselectedBorder);
 	    }
 	}
     }
