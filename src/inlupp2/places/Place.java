@@ -23,18 +23,27 @@ public abstract class Place extends JComponent implements Serializable {
     
     private static final long serialVersionUID = 1L;
     
-    protected static final int triWidth = 16;
-    protected static final int triHight = 24;
-    protected static final float alphaRel = 0.75f;
-//    protected static final float thickness = 2;
-    private static final int d = 1;
-    
     protected String          name;
     protected PlacePosition   position;
     protected PlaceCategory   category;
     protected boolean         folded, selected;
     
-    protected static Border selectedBorder = BorderFactory.createLineBorder(Color.GRAY, 1);
+    
+    // Attributes needed for painting the component
+    protected static final int BASIC_WIDTH = 16;
+    protected static final int BASIC_HEIGHT = 24;
+    protected static final float REL_ALPHA = 0.75f;
+//    protected static final float thickness = 2;
+    // Border thickness
+    protected static final int BORDER_THICKNESS = 2;
+    // Size difference between inner and outer triangle
+    protected static final int INNER_DISTANCE = 1;
+    
+    protected int[] xPoints, yPoints, xiPoints, yiPoints, xi2Points, yi2Points;
+    
+    protected Color colOut, colIn;
+    
+    protected static Border selectedBorder = BorderFactory.createLineBorder(Color.GRAY, BORDER_THICKNESS);
     protected static Border unselectedBorder = BorderFactory.createEmptyBorder();
 
     /**
@@ -59,23 +68,60 @@ public abstract class Place extends JComponent implements Serializable {
 	this.name = name;
 	this.position = pos;
 	this.category = cat;
-	this.folded = true;
+//	this.folded = true;
 	this.selected = false;
-	setFoldedSize();
+	fold();
+	// Test 2015-08-01
+	if (category != null) {
+	    colOut = category.getColor();
+	} else {
+	    colOut = Color.DARK_GRAY;
+	}
+	int newAlpha = (int) (colOut.getAlpha()*REL_ALPHA);
+	colIn = new Color(colOut.getRed(), colOut.getGreen(), colOut.getBlue(), newAlpha);
+	// The points of the triangle are defined in the following order:
+	// 1 - the lower point, 2 - the upper left corner, 3 - the upper right corner
+	xPoints = new int[3];
+	yPoints = new int[3];
+	xPoints[0] = BASIC_WIDTH/2 + BORDER_THICKNESS;
+	yPoints[0] = BASIC_HEIGHT + BORDER_THICKNESS;
+	xPoints[1] = BORDER_THICKNESS;
+	yPoints[1] = BORDER_THICKNESS;
+	xPoints[2] = BASIC_WIDTH + BORDER_THICKNESS;
+	yPoints[2] = BORDER_THICKNESS;
+	xiPoints = new int[3];
+	yiPoints = new int[3];
+	xiPoints[0] = xPoints[0];
+	yiPoints[0] = yPoints[0] - INNER_DISTANCE;
+	xiPoints[1] = xPoints[1] + INNER_DISTANCE;
+	yiPoints[1] = yPoints[1] + INNER_DISTANCE;
+	xiPoints[2] = xPoints[2] - INNER_DISTANCE;
+	yiPoints[2] = yPoints[2] + INNER_DISTANCE;
+	xi2Points = new int[3];
+	yi2Points = new int[3];
+	xi2Points[0] = xPoints[0];
+	yi2Points[0] = yPoints[0] - INNER_DISTANCE*2;
+	xi2Points[1] = xPoints[1] + INNER_DISTANCE*2;
+	yi2Points[1] = yPoints[1] + INNER_DISTANCE*2;
+	xi2Points[2] = xPoints[2] - INNER_DISTANCE*2;
+	yi2Points[2] = yPoints[2] + INNER_DISTANCE*2;
     }
     
-    protected void setFoldedSize() {
-	int x0 = (int) (position.getX() - triWidth/2);
-	int y0 = (int) (position.getY() - triHight);
-	int wi = triWidth;
-	int hi = triHight;
+    protected void fold() {
+	this.folded = true;
+	int wi = BASIC_WIDTH + BORDER_THICKNESS*2;
+	int hi = BASIC_HEIGHT + BORDER_THICKNESS*2;
+	
+	int x0 = (int) (position.getX() - BASIC_WIDTH/2 - BORDER_THICKNESS);
+	int y0 = (int) (position.getY() - BASIC_HEIGHT - BORDER_THICKNESS);
+	
 	setBounds(x0, y0, wi, hi);
-	Dimension d = new Dimension(wi, hi);
-	setPreferredSize(d);
+	setPreferredSize(new Dimension(wi, hi));
+	
 	validate();
     }
     
-    protected abstract void setUnfoldedSize();
+    protected abstract void unfold();
     
     protected void paintComponent(Graphics g) {
 	if (!this.isVisible()) {
@@ -85,34 +131,33 @@ public abstract class Place extends JComponent implements Serializable {
 	    if (category.isHidden())
 		return;
 	super.paintComponent(g);
-//	this.setFoldedSize();
 	this.setOpaque(true);
-	Color colOut;
-	Color colIn;
+//	Color colOut;
+//	Color colIn;
 	// The points of the triangle are defined in the following order:
 	// 1 - the lower point, 2 - the upper left corner, 3 - the upper right corner
-	int[] xPoints = {triWidth/2, 0, triWidth};
-	int[] yPoints = {triHight, 0, 0};
-	int[] xiPoints = {xPoints[0], xPoints[1] + d, xPoints[2] - d};
-	int[] yiPoints = {yPoints[0] - d, yPoints[1] + d, yPoints[2] + d};
-	int[] xi2Points = {xPoints[0], xPoints[1] + d*2, xPoints[2] - d*2};
-	int[] yi2Points = {yPoints[0] - d*2, yPoints[1] + d*2, yPoints[2] + d*2};
-	if (category != null) {
-	    colOut = category.getColor();
-	} else {
-	    colOut = Color.DARK_GRAY;
-	}
-	int newAlpha = (int) (colOut.getAlpha()*alphaRel);
-	colIn = new Color(colOut.getRed(), colOut.getGreen(), colOut.getBlue(), newAlpha);
+//	int[] xPoints = {triWidth/2, 0, triWidth};
+//	int[] yPoints = {triHeight, 0, 0};
+//	int[] xiPoints = {xPoints[0], xPoints[1] + b, xPoints[2] - b};
+//	int[] yiPoints = {yPoints[0] - b, yPoints[1] + b, yPoints[2] + b};
+//	int[] xi2Points = {xPoints[0], xPoints[1] + b*2, xPoints[2] - b*2};
+//	int[] yi2Points = {yPoints[0] - b*2, yPoints[1] + b*2, yPoints[2] + b*2};
+//	if (category != null) {
+//	    colOut = category.getColor();
+//	} else {
+//	    colOut = Color.DARK_GRAY;
+//	}
+//	int newAlpha = (int) (colOut.getAlpha()*alphaRel);
+//	colIn = new Color(colOut.getRed(), colOut.getGreen(), colOut.getBlue(), newAlpha);
 	
 	g.setColor(colIn);
-//	g.fillOval(0, 0, getWidth(), getHeight());
 	g.fillPolygon(xPoints, yPoints, 3);	
 	g.setColor(colOut);
 	g.drawPolygon(xiPoints, yiPoints, 3);
 	g.drawPolygon(xi2Points, yi2Points, 3);
 	g.setColor(Color.BLACK);
 	g.drawPolygon(xPoints, yPoints, 3);
+	
 	
 //	Border selectedBorder = BorderFactory.createLineBorder(Color.GRAY, 1);
 //	Border unselectedBorder = BorderFactory.createEmptyBorder();
@@ -198,9 +243,9 @@ public abstract class Place extends JComponent implements Serializable {
     public void setFolded(boolean val) {
 	this.folded = val;
 	if (folded)
-	    this.setFoldedSize();
+	    this.fold();
 	else
-	    this.setUnfoldedSize();
+	    this.unfold();
     }
 
     public boolean isSelected() {

@@ -8,8 +8,9 @@
 
 package inlupp2.places;
 
-import java.awt.Color;
+//import java.awt.Color;
 import java.awt.Dimension;
+import java.awt.FontMetrics;
 import java.awt.Graphics;
 
 //import javax.swing.BorderFactory;
@@ -18,6 +19,12 @@ import java.awt.Graphics;
 public class NamedPlace extends Place {
     
     private static final long serialVersionUID = 5L;
+    
+    private static final int UNFOLDED_WIDTH 	= 5;
+    private static final int UNFOLDED_HEIGHT 	= 2;
+    
+    protected static final int HMARGIN = 4;
+    protected static final int VMARGIN = 4;
     
     /**
      * private constructor to prevent instantiation without attributes
@@ -53,15 +60,16 @@ public class NamedPlace extends Place {
 	// TODO Auto-generated constructor stub
     }
     
-    protected void setUnfoldedSize() {
-//	NamedPlace np = (NamedPlace) p;
-	int x0 = (int) (position.getX() - triWidth/2);
-	int y0 = (int) (position.getY() - triHight);
-	int wi = triWidth * 5;
-	int hi = triHight * 2;
+    protected void unfold() {
+	int wi = BASIC_WIDTH * UNFOLDED_WIDTH + BORDER_THICKNESS*2;
+	int hi = BASIC_HEIGHT * UNFOLDED_HEIGHT + BORDER_THICKNESS*2;
+	int x0 = (int) (position.getX() - BASIC_WIDTH/2 - BORDER_THICKNESS);
+	int y0 = (int) (position.getY() - BASIC_HEIGHT - BORDER_THICKNESS);
+	
 	setBounds(x0, y0, wi, hi);
-	Dimension d = new Dimension(wi, hi);
-	setPreferredSize(d);
+	setPreferredSize(new Dimension(wi, hi));
+	
+	validate();
     }
     
     protected void paintComponent(Graphics g) {
@@ -69,17 +77,18 @@ public class NamedPlace extends Place {
 	    super.paintComponent(g);
 	} else {
 	    this.setOpaque(true);
-	    setUnfoldedSize();
-	    Color col;
-	    if (category != null) {
-		col = category.getColor();
-	    } else {
-		col = Color.DARK_GRAY;
-	    }
-	    g.setColor(col);
-	    g.drawRect(0+1, 0+1, this.getWidth()-3, this.getHeight()-3);
+	    unfold();
+//	    Color col;
+//	    if (category != null) {
+//		col = category.getColor();
+//	    } else {
+//		col = Color.DARK_GRAY;
+//	    }
+	    FontMetrics fm = g.getFontMetrics();
+	    g.setColor(colOut);
+	    g.drawRoundRect(BORDER_THICKNESS, BORDER_THICKNESS, this.getWidth()-BORDER_THICKNESS*2-1, this.getHeight()-BORDER_THICKNESS*2-1, 20, 20);
 //	    g.setColor(Color.BLACK);
-	    g.drawString(getName(), 0 + 4, (getHeight()-4)/2);
+	    g.drawString(getName(), BORDER_THICKNESS + HMARGIN, (this.getHeight() - fm.getHeight()) / 2 + fm.getAscent());
 //	    Border selectedBorder = BorderFactory.createLineBorder(Color.GRAY, 1);
 //	    Border unselectedBorder = BorderFactory.createEmptyBorder();
 	    if (this.selected) {

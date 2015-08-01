@@ -32,6 +32,8 @@ import java.util.HashMap;
 
 
 
+import java.util.HashSet;
+import java.util.Iterator;
 import java.util.List;
 
 import javax.imageio.ImageIO;
@@ -48,11 +50,13 @@ public class MapPanel extends JPanel implements Serializable {
     private BufferedImage mapImage;
     private boolean modified;
 
-    private HashMap<PlacePosition, Place> positionedPlaces;
-    private HashMap<String, List<Place>> namedPlaces;
+    private HashMap<PlacePosition, Place> placesByPosition;
+    private HashMap<String, List<Place>> placesByName;
 
     private ArrayList<PlaceCategory> categories;
     //private HashMap<String, PlaceCategory> categories;
+    
+    private HashSet<Place> selectedPlaces;
     
     /**
      * Empty constructor is needed so that the panel can be initialized without an image
@@ -72,9 +76,10 @@ public class MapPanel extends JPanel implements Serializable {
 	if (mapImage.getWidth(this) < 0)
 	    throw new IllegalArgumentException("Can't open the image file!");
 	modified = false;
-	positionedPlaces = new HashMap<PlacePosition, Place>();
-	namedPlaces = new HashMap<String, List<Place>>();
+	placesByPosition = new HashMap<PlacePosition, Place>();
+	placesByName = new HashMap<String, List<Place>>();
 	categories = new ArrayList<PlaceCategory>();
+	selectedPlaces = new HashSet<Place>();
 	// set preferredSize to make the panel resize itself
 //	setPreferredSize(new Dimension(mapImage.getIconWidth(), mapImage.getIconHeight()));
 	setPreferredSize(new Dimension(mapImage.getWidth(this), mapImage.getHeight(this)));
@@ -111,7 +116,7 @@ public class MapPanel extends JPanel implements Serializable {
 //	return d;
 //    }
     
-    public boolean hasMap() {
+    public boolean hasMapImage() {
 	if (mapImage != null)
 	    return true;
 	else
@@ -149,13 +154,14 @@ public class MapPanel extends JPanel implements Serializable {
 //    
     
     public void addPlace(PlacePosition pos, String name, Place place) {
-	positionedPlaces.put(pos, place);
-	if (namedPlaces.containsKey(name)) {
-	    namedPlaces.get(name).add(place);
+	// TODO Ensure that no duplicate positions are added
+	placesByPosition.put(pos, place);
+	if (placesByName.containsKey(name)) {
+	    placesByName.get(name).add(place);
 	} else {
 	    List<Place> l = new ArrayList<Place>();
 	    l.add(place);
-	    namedPlaces.put(name, l);
+	    placesByName.put(name, l);
 	}
 	modified = true;
 	this.add(place);
@@ -163,8 +169,9 @@ public class MapPanel extends JPanel implements Serializable {
 
     public Place removePlace(PlacePosition pos) {
 	// TODO
-	Place ret = positionedPlaces.remove(pos);
+	Place ret = placesByPosition.remove(pos);
 	if (ret != null) {
+	    
 	    modified = true;
 	}
 	return ret;
@@ -212,12 +219,6 @@ public class MapPanel extends JPanel implements Serializable {
 	return null;
     }
     
-    /**
-     * @return the positionedPlaces
-     */
-//    public HashMap<PlacePosition, Place> getPlaces() {
-//        return positionedPlaces;
-//    }
 
     /**
      * @param positionedPlaces the positionedPlaces to set
@@ -234,16 +235,74 @@ public class MapPanel extends JPanel implements Serializable {
     }
 
     /**
-     * @return the positionedPlaces
+     * @return the placesByPosition Map
      */
-    public HashMap<PlacePosition, Place> getPositionedPlaces() {
-        return positionedPlaces;
+    public HashMap<PlacePosition, Place> getAllPlacesByPos() {
+        return placesByPosition;
     }
     
-    public HashMap<String, List<Place>> getNamedPlaces() {
-        return namedPlaces;
+    /**
+     * @return the placesByName Map
+     */    
+    public HashMap<String, List<Place>> getAllPlacesByName() {
+        return placesByName;
+    }
+    
+    
+    /**
+     * @param name
+     * @return
+     */
+    public List<Place> getPlacesByName(String name) {
+	ArrayList<Place> ret;
+	if (placesByName.containsKey(name)) {
+	    ret = (ArrayList<Place>) placesByName.get(name);
+//	    return ret;
+	} else {
+	    ret = new ArrayList<Place>();
+//	    return null;
+	}
+	return ret;
+    }
+      
+    public void setSelectedPlace(Place place, boolean sel) {
+	place.setSelected(sel);
+	if (sel) {
+	    selectedPlaces.add(place);
+	}
+	else {
+	    selectedPlaces.remove(place);
+	}
+	modified = true;
     }
 
+    public void setSelectedPlaces(List<Place> placelist) {
+	System.out.println("setSelectedPlaces 1: " + selectedPlaces.toString());
+	Iterator<Place> iter;
+	if (!selectedPlaces.isEmpty()) {
+	    iter = selectedPlaces.iterator();
+	    while (iter.hasNext()) {
+		Place p = iter.next();
+		System.out.println("setSelectedPlaces 2: " + p);
+		p.setSelected(false);
+	    }
+	    selectedPlaces.clear();
+	}
+	if (placelist != null) {	
+	    iter = placelist.iterator();
+	    while (iter.hasNext()) {
+		Place p = iter.next();
+		System.out.println("setSelectedPlaces 3: " + p);
+		p.setSelected(true);
+		selectedPlaces.add(p);
+	    }
+	}
+//	for (Place place : placelist) {
+//	    place.setSelected(true);
+//	}
+	modified = true;
+    }
+    
     /**
      * @param categories the categories to set
      */
@@ -261,8 +320,9 @@ public class MapPanel extends JPanel implements Serializable {
 	// Save categories
 	oos.writeObject(categories);
 	// Save positionedPlaces
-	oos.writeObject(positionedPlaces);
-	oos.writeObject(namedPlaces);
+	oos.writeObject(placesByPosition);
+	oos.writeObject(placesByName);
+	oos.writeObject(selectedPlaces);
 	// Close streams
 	oos.close();
 	fos.close();
@@ -280,8 +340,9 @@ public class MapPanel extends JPanel implements Serializable {
 	// Save categories
 	oos.writeObject(categories);
 	// Save positionedPlaces
-	oos.writeObject(positionedPlaces);
-	oos.writeObject(namedPlaces);
+	oos.writeObject(placesByPosition);
+	oos.writeObject(placesByName);
+	oos.writeObject(selectedPlaces);
 	// Close streams
 	oos.close();
 	fos.close();
@@ -303,13 +364,14 @@ public class MapPanel extends JPanel implements Serializable {
 	// Load categories
 	this.categories = (ArrayList<PlaceCategory>)ois.readObject();
 	// Load positionedPlaces
-	this.positionedPlaces = (HashMap<PlacePosition, Place>) ois.readObject();
-	this.namedPlaces = (HashMap<String, List<Place>>) ois.readObject();
+	this.placesByPosition = (HashMap<PlacePosition, Place>) ois.readObject();
+	this.placesByName = (HashMap<String, List<Place>>) ois.readObject();
+	this.selectedPlaces = (HashSet<Place>) ois.readObject();
 	// Close streams
 	ois.close();
 	fis.close();
 	// Set modified to false
-	for (Place p : positionedPlaces.values()) {
+	for (Place p : placesByPosition.values()) {
 		this.add(p);
 	    }
 	this.modified = false;
@@ -327,14 +389,19 @@ public class MapPanel extends JPanel implements Serializable {
 	// Load categories
 	this.categories = (ArrayList<PlaceCategory>)ois.readObject();
 	// Load positionedPlaces
-	this.positionedPlaces = (HashMap<PlacePosition, Place>) ois.readObject();
-	this.namedPlaces = (HashMap<String, List<Place>>) ois.readObject();
+	this.placesByPosition = (HashMap<PlacePosition, Place>) ois.readObject();
+	this.placesByName = (HashMap<String, List<Place>>) ois.readObject();
+	this.selectedPlaces = (HashSet<Place>) ois.readObject();
 	// Close streams
 	ois.close();
 	fis.close();
-	for (Place p : positionedPlaces.values()) {
-		this.add(p);
-	    }
+	for (Place p : placesByPosition.values()) {
+	    this.add(p);
+	}
+//	Iterator<Place> iter = selectedPlaces.iterator();
+//	while (iter.hasNext()) {
+//	    iter.next().setSelected(true);
+//	}
 	// Set modified to false
 	this.modified = false;
 	setPreferredSize(new Dimension(mapImage.getWidth(this), mapImage.getHeight(this)));

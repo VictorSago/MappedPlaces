@@ -73,11 +73,23 @@ public class MappedPlaces extends JFrame {
     private DefaultListModel<PlaceCategory> 	lstmod 		= new DefaultListModel<>();
     private JList<PlaceCategory> 		lstCategories 	= new JList<>(lstmod);
     
-    private JMenuItem 	miSave 		= new JMenuItem(msgStrings.getString("miSave")), //$NON-NLS-1$
-	    		miSaveAs 	= new JMenuItem(msgStrings.getString("miSaveAs")); //$NON-NLS-1$
+    private JMenuItem 	miSave 		= new JMenuItem(msgStrings.getString("miSave")), 		//$NON-NLS-1$
+	    		miSaveAs 	= new JMenuItem(msgStrings.getString("miSaveAs")); 		//$NON-NLS-1$
     
-    private CreatePlaceListener mAdapt 	= new CreatePlaceListener();
-    private PlaceMouseListener 	pAdapt 	= new PlaceMouseListener();
+    // Buttons
+    JButton btnSearch 	= new JButton(msgStrings.getString("btnSearch")), 				//$NON-NLS-1$
+	    btnHide 	= new JButton(msgStrings.getString("btnHidePlaces")), 				//$NON-NLS-1$
+	    btnDel 	= new JButton(msgStrings.getString("btnDelPlaces")), 				//$NON-NLS-1$
+	    btnWhat 	= new JButton(msgStrings.getString("btnWhatHere")), 				//$NON-NLS-1$
+	    btnCatHide 	= new JButton(msgStrings.getString("btnCatHide")), 				//$NON-NLS-1$
+	    btnCatNew 	= new JButton(msgStrings.getString("btnCatNew")), 				//$NON-NLS-1$
+	    btnCatDel 	= new JButton(msgStrings.getString("btnCatDel")); 				//$NON-NLS-1$
+//	    btnTest	= new JButton("Test main panel");
+
+    
+    private CreatePlaceListener mAdapt 		= new CreatePlaceListener();
+    private PlaceMouseListener 	pAdapt 		= new PlaceMouseListener();
+    private SearchListener 	searchlistener 	= new SearchListener();
 
     /**
      * @param title
@@ -94,16 +106,7 @@ public class MappedPlaces extends JFrame {
 			miOpen 		= new JMenuItem(msgStrings.getString("miOpen")), //$NON-NLS-1$
 			miExit 		= new JMenuItem(msgStrings.getString("miExit")); //$NON-NLS-1$
 
-	// Buttons
-	JButton btnSearch 	= new JButton(msgStrings.getString("btnSearch")), //$NON-NLS-1$
-		btnHide 	= new JButton(msgStrings.getString("btnHidePlaces")), //$NON-NLS-1$
-		btnDel 		= new JButton(msgStrings.getString("btnDelPlaces")), //$NON-NLS-1$
-		btnWhat 	= new JButton(msgStrings.getString("btnWhatHere")), //$NON-NLS-1$
-		btnCatHide 	= new JButton(msgStrings.getString("btnCatHide")), //$NON-NLS-1$
-		btnCatNew 	= new JButton(msgStrings.getString("btnCatNew")), //$NON-NLS-1$
-		btnCatDel 	= new JButton(msgStrings.getString("btnCatDel")); //$NON-NLS-1$
-//		btnTest		= new JButton("Test main panel");
-
+	
 	ExitListener exLis 	= new ExitListener();
 	SaveListener saveLis 	= new SaveListener();
 	
@@ -201,7 +204,11 @@ public class MappedPlaces extends JFrame {
 	// Add Listeners to buttons and other visual elements
 	cbxPlaceTypes.addActionListener(new NewPlaceListener());
 	tfSearch.addFocusListener(new SearchFieldFocusListener());
-	btnSearch.addActionListener(new SearchListener());
+	
+//	btnSearch.addActionListener(new SearchListener());
+	tfSearch.addActionListener(searchlistener);
+	btnSearch.addActionListener(searchlistener);
+	btnSearch.setEnabled(false);
 	btnHide.addActionListener(new HidePlacesListener());
 	btnDel.addActionListener(new DeletePlacesListener());
 	btnWhat.addActionListener(new WhatHereListener());
@@ -305,6 +312,8 @@ public class MappedPlaces extends JFrame {
 	    docfile = imgfile.getAbsolutePath();
 	    docfile = docfile.substring(0, docfile.lastIndexOf(".")) + ".kart";
 	    
+	    btnSearch.setEnabled(true);
+	    
 //	    lblStatus.setText("Loaded map \"" + imgfile.getName() + "\" from " + imgfile.getPath());
 	    lblStatus.setText(msgStrings.getString("msgStatusMapLoaded") + docfile + "\""); 		//$NON-NLS-1$
 //	    add(pnlCenter, BorderLayout.CENTER);
@@ -373,8 +382,8 @@ public class MappedPlaces extends JFrame {
 	        ioe.printStackTrace();
             }
 	    System.out.println("Categories: " + pnlMainPane.getCategories() + 
-		    		"\nPosPlaces: " + pnlMainPane.getPositionedPlaces() + 
-		    		"\nNamedPlaces: " + pnlMainPane.getNamedPlaces());
+		    		"\nPosPlaces: " + pnlMainPane.getAllPlacesByPos() + 
+		    		"\nNamedPlaces: " + pnlMainPane.getAllPlacesByName());
 //	    ArrayList<PlaceCategory> cats = pnlMainPane.getCategories();
 //	    ArrayList<PlaceCategory> categories = pnlMainPane.getCategories();
 //	    lstCategories.setListData(categories.toArray(new PlaceCategory[categories.size()]));
@@ -388,6 +397,9 @@ public class MappedPlaces extends JFrame {
 	    if (!(miSave.isEnabled() && miSaveAs.isEnabled())) {
 		miSave.setEnabled(true);
 		miSaveAs.setEnabled(true);
+	    }
+	    if (!btnSearch.isEnabled()) {
+		btnSearch.setEnabled(true);
 	    }
 //	    lblStatus.setText("Loaded file \"" + file.getName() + "\"");
 	    lblStatus.setText(msgStrings.getString("msgStatusOpened") + 
@@ -417,8 +429,7 @@ public class MappedPlaces extends JFrame {
 	 */
 	@Override
 	public void actionPerformed(ActionEvent aev) {
-	    // TODO Auto-generated method stub
-	    if (!pnlMainPane.hasMap()) {
+	    if (!pnlMainPane.hasMapImage()) {
 		JOptionPane.showMessageDialog(MappedPlaces.this, msgStrings.getString("msgNothingToSave"), 	//$NON-NLS-1$
 			msgStrings.getString("msgNoMapTitle"), JOptionPane.ERROR_MESSAGE); 			//$NON-NLS-1$
 		return;
@@ -501,7 +512,7 @@ public class MappedPlaces extends JFrame {
 	 */
 	@Override
 	public void actionPerformed(ActionEvent e) {
-	    if (pnlMainPane.hasMap()) {
+	    if (pnlMainPane.hasMapImage()) {
 		pnlMainPane.addMouseListener(mAdapt);
 		pnlMainPane.setCursor(Cursor.getPredefinedCursor(Cursor.CROSSHAIR_CURSOR));
 		lblStatus.setText(msgStrings.getString("msgStatusCreatePlace"));
@@ -620,13 +631,13 @@ public class MappedPlaces extends JFrame {
 	public void focusGained(FocusEvent fev) {
 	    if (tfSearch.getText().equals(msgStrings.getString("strSearch"))) { 			//$NON-NLS-1$
 		tfSearch.setForeground(Color.BLACK);
-		tfSearch.setText(""); //$NON-NLS-1$
+		tfSearch.setText(""); 									//$NON-NLS-1$
 	    }
 	}
 
 	@Override
 	public void focusLost(FocusEvent fev) {
-	    if (tfSearch.getText().equals("")) { //$NON-NLS-1$
+	    if (tfSearch.getText().equals("")) { 							//$NON-NLS-1$
 		tfSearch.setForeground(Color.GRAY);
 		tfSearch.setText(msgStrings.getString("strSearch")); 					//$NON-NLS-1$
 	    }
@@ -645,9 +656,40 @@ public class MappedPlaces extends JFrame {
 	@Override
 	public void actionPerformed(ActionEvent e) {
 	    // TODO Auto-generated method stub
+	    String name = tfSearch.getText();
+	    
+	    if(!pnlMainPane.hasMapImage()) {
+		return;
+	    }
+	    if(name.equals("")) {
+		return;
+	    }
+	    
+	    lblStatus.setText("Searching: " + name);
 
+//	    if (pnlMainPane.getPlacesByName(name) != null) {
+//		ArrayList<Place> list = new ArrayList<Place>(pnlMainPane.getPlacesByName(name));
+//		System.out.println(list);
+//		for (Place p : list) {
+//		    p.setSelected(true);
+//		    pnlMainPane.setSelectedPlace(p, true);
+//		}
+//		pnlMainPane.setSelectedPlaces(list);
+//	    } else {
+//		lblStatus.setText(name + ": " + msgStrings.getString("msgStatusNoSuchPlaces"));
+//	    }
+	    
+	    ArrayList<Place> list = new ArrayList<Place>(pnlMainPane.getPlacesByName(name));
+	    if(!list.isEmpty()) {
+		System.out.println(list);
+		pnlMainPane.setSelectedPlaces(list);
+	    } else {
+		pnlMainPane.setSelectedPlaces(list);
+		lblStatus.setText(name + ": " + msgStrings.getString("msgStatusNoSuchPlaces"));
+	    }
+	    
+	    pnlMainPane.repaint();
 	}
-
     }
 
     /**
@@ -731,7 +773,7 @@ public class MappedPlaces extends JFrame {
 	@Override
 	public void actionPerformed(ActionEvent e) {
 	    // If there is no map present categories cannot be created
-	    if (!pnlMainPane.hasMap()) {
+	    if (!pnlMainPane.hasMapImage()) {
 		JOptionPane.showMessageDialog(MappedPlaces.this, msgStrings.getString("msgMapMissing"), //$NON-NLS-1$
 			msgStrings.getString("msgNoMapTitle"), JOptionPane.ERROR_MESSAGE); 		//$NON-NLS-1$
 		return;
@@ -805,8 +847,10 @@ public class MappedPlaces extends JFrame {
 		if (mev.getButton() == MouseEvent.BUTTON1) {
 		    if (p.isSelected()) {
 			p.setSelected(false);
+			pnlMainPane.setSelectedPlace(p, false);
 		    } else {
 			p.setSelected(true);
+			pnlMainPane.setSelectedPlace(p, true);
 		    }
 		} else if (mev.getButton() == MouseEvent.BUTTON3) {
 		    String status = "Right button clicked: " + p.getPosition().toString();

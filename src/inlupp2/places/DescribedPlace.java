@@ -33,6 +33,14 @@ public class DescribedPlace extends Place {
     // Test 2015-07-27
     private ArrayList<String> descriptionSplit;
     
+    private static final int UNFOLDED_WIDTH 	= 5;
+//    private static final int UNFOLDED_HEIGHT 	= 10;
+    
+    protected static final int HMARGIN = 4;
+    protected static final int VMARGIN = 2;
+    
+    private static final Color UNFOLDED_BACKGROUND = Color.YELLOW;
+    
     /**
      * private constructor to prevent instantiation without attributes
      */
@@ -93,21 +101,25 @@ public class DescribedPlace extends Place {
 //	super.setFoldedSize();
 //    }
     
-    protected void setUnfoldedSize() {
-	int x0 = (int) (position.getX() - triWidth/2);
-	int y0 = (int) (position.getY() - triHight);
-	int wi = triWidth * 4;
-	int hi = triHight * 10;
+    protected void unfold() {
+	int width = BASIC_WIDTH * UNFOLDED_WIDTH + BORDER_THICKNESS*2;
+//	int height = BASIC_HEIGHT * UNFOLDED_HEIGHT + BORDER_THICKNESS*2;
+	
+	int x0 = (int) (position.getX() - BASIC_WIDTH/2 - BORDER_THICKNESS);
+	int y0 = (int) (position.getY() - BASIC_HEIGHT - BORDER_THICKNESS);
+	
 	
 	// Test 2015-07-27
-	if (descriptionSplit == null || descriptionSplit.isEmpty()) {
-	    FontMetrics fm = this.getFontMetrics(getFont());
-	    descriptionSplit = new ArrayList<String>(StringUtils.wrap(description, fm, wi));
-	}
+	FontMetrics fm = this.getFontMetrics(getFont());
+//	if (descriptionSplit == null || descriptionSplit.isEmpty()) {
+//	    descriptionSplit = new ArrayList<String>(StringUtils.wrap(description, fm, width+12));
+//	}
+	descriptionSplit = new ArrayList<String>(StringUtils.wrap(description, fm, width-BORDER_THICKNESS*2-HMARGIN*2));
 	
-	setBounds(x0, y0, wi, hi);
-	Dimension d = new Dimension(wi, hi);
-	setPreferredSize(d);
+	int height = fm.getHeight() * (descriptionSplit.size()+1) + BORDER_THICKNESS*2 + VMARGIN*2;
+	
+	setBounds(x0, y0, width, height);
+	setPreferredSize(new Dimension(width, height));
 
 	validate();
     }
@@ -119,26 +131,26 @@ public class DescribedPlace extends Place {
 	    this.setOpaque(true);
 //	    this.setUnfoldedSize();	    
 	    
-	    Color colIn = Color.YELLOW;
-	    Color colOut;
-	    if (category != null) {
-		colOut = category.getColor();
-	    } else {
-		colOut = Color.DARK_GRAY;
-	    }
+//	    Color colIn = Color.YELLOW;
+//	    Color colOut;
+//	    if (category != null) {
+//		colOut = category.getColor();
+//	    } else {
+//		colOut = Color.DARK_GRAY;
+//	    }
 	    
-	    g.setColor(colIn);
-	    g.fillRect(0+1, 0+1, this.getWidth()-3, this.getHeight()-3);
+	    g.setColor(UNFOLDED_BACKGROUND);
+	    g.fillRect(BORDER_THICKNESS, BORDER_THICKNESS, this.getWidth()-BORDER_THICKNESS*2-1, this.getHeight()-BORDER_THICKNESS*2-1);
 	    g.setColor(colOut);
 	    
 	    // Test 2015-07-27
 	    FontMetrics fm = g.getFontMetrics();
-	    int hi = fm.getHeight();
+	    int fontHeight = fm.getHeight();
 //	    g.drawString(getName(), 0 + 8, 0+16);
-	    g.drawString(getName(), fm.getMaxAdvance(), hi+2);
+	    g.drawString(getName(), BORDER_THICKNESS+HMARGIN*2, fontHeight+VMARGIN);
 //	    g.drawString(description, 0 + 2, 0+32);
 	    for (int i = 0; i < descriptionSplit.size(); i++) {
-		g.drawString(descriptionSplit.get(i), 0+1, hi*(i+2)+2);
+		g.drawString(descriptionSplit.get(i), BORDER_THICKNESS + HMARGIN, fontHeight*(i+2)+VMARGIN);
 	    }
 	    
 //	    Border selectedBorder = BorderFactory.createLineBorder(Color.GRAY, 1);
