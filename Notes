@@ -1,0 +1,545 @@
+
+Code that was removed or commented out, but which may prove useful later on.
+
+Removals:
+
+**************
+from MapPanel.java
+**************
+
+//    	private ImageIcon mapImage;
+// 2015-05-14 Changed from Image to BufferedImage
+
+//		private HashMap<String, PlaceCategory> categories; 			// Instead of the current ArrayList
+
+from 	MapPanel.paintComponent(Graphics g)
+//			g.drawImage(mapImage.getImage(), 0, 0, getWidth(), getHeight(), this);
+// 	    	getX(), getY(), getWidth(), getHeight()
+
+    	/*
+     	* test
+     	* unnecessary after setting preferred size in the constructor
+     	*/
+/*    	@Override
+//		public Dimension getPreferredSize() {
+//			Dimension d = new Dimension(super.getPreferredSize());
+//			if (imageMap != null) {
+//	    		d.setSize(imageMap.getIconWidth(), imageMap.getIconHeight());
+//			}
+//			return d;
+//		}
+*/
+
+//		public Place addPlace(PlacePosition pos, Place place) {
+//			Place ret = positionedPlaces.putIfAbsent(pos, place);
+//			if (ret == null) {
+//	    		modified = true;
+//			}
+//			return ret;
+//		}
+//    
+//		public void addPlace(Place place) {
+//			placesByPosition.put(place.getPosition(), place);
+//			if (namedPlaces.containsKey(place.getName())) {
+//	    		namedPlaces.get(place.getName()).add(place);
+//			} else {
+//	    		List<Place> l = new ArrayList<Place>();
+//	    		l.add(place);
+//	    		namedPlaces.put(place.getName(), l);
+//			}
+//			addPlace(place.getPosition(), place);
+//			modified = true;
+//		}
+
+		public void removePlaces(Collection<Place> places) {
+			// TODO
+			boolean first = selectedPlaces.removeAll(places);
+			Iterator<Place> iter = places.iterator();
+			while (iter.hasNext()) {
+	    		PlacePosition pos = iter.next().getPosition();
+	    		placesByPosition.remove(pos);
+			}
+			System.out.println(first);
+    	}
+
+    	public void removePlaces(Collection<Place> places) {
+			if (places != null) {
+	    		Iterator<Place> iter = places.iterator();
+//	    		System.out.println("Places at start: " + places);
+//	    		System.out.println("PlacesByPosition at start: " + placesByPosition);
+//	    		System.out.println("PlacesByName at start: " + placesByName);
+//	    		System.out.println("SelectedPlaces at start: " + selectedPlaces);	    
+//	    		int i = 0;
+	    		while (iter.hasNext()) {
+//					System.out.println("Iteration " + i + ": ");
+					Place p = iter.next();
+//					System.out.println("Place " + i + ": " + p);
+					this.removePlace(p);
+//					if (p.isSelected()) {
+////		    		selectedPlaces.remove(p);
+//		    			setSelectedPlace(p, false);
+//					}
+//					String name = p.getName();
+//					placesByName.get(name).remove(p);
+//					if (placesByName.get(name).isEmpty()) {
+//		    			placesByName.remove(name);
+//					}
+//					placesByPosition.remove(p.getPosition());
+//					this.remove(p);
+//					System.out.println();
+//					i += 1;
+	    		}
+	    		modified = true;
+			}
+			validate();
+		}
+  
+//		public PlaceCategory addCategory(String name, PlaceCategory category) {
+//			PlaceCategory ret = categories.putIfAbsent(name, category);
+//			if (ret == null) {
+//	    		modified = true;
+//			}
+//			return ret;
+//		}
+    
+//    	public PlaceCategory addCategory(PlaceCategory category) {
+//			return addCategory(category.getName(), category);
+//    	}
+
+
+//    	public PlaceCategory removeCategory(String name) {
+//			return categories.remove(name);
+//    	}
+
+    	/**
+     	* @param positionedPlaces the positionedPlaces to set
+     	*/
+//    	public void setPlaces(HashMap<PlacePosition, Place> positionedPlaces) {
+//        	this.places = positionedPlaces;
+//    	}
+
+    	/**
+     	* @param selectedPlaces the selectedPlaces to set
+     	*/
+//    	public void setSelectedPlaces(HashSet<Place> selectedPlaces) {
+//        	this.selectedPlaces = selectedPlaces;
+//    	}
+
+from MapPanel.loadData(File docfile)
+//	At the end of the method
+//	Proved unnecessary
+
+//		Iterator<Place> iter = selectedPlaces.iterator();
+//		while (iter.hasNext()) {
+//	    	iter.next().setSelected(true);
+//		}
+
+**************
+from MappedPlaces.java
+**************
+Line 31:
+
+//		public class TestListener implements ActionListener {
+//
+//			@Override
+//			public void actionPerformed(ActionEvent e) {
+//	    		System.out.println(pnlMainPane.toString());
+//	    		System.out.println("Categories: " + pnlMainPane.getCategories() + "\nPlaces: " + pnlMainPane.getPlaces());
+//	    		System.out.println("ListModel: " + lstmod.toString());
+//	    		System.out.println("JList: " + lstCategories.toString());
+//	    		HashMap<PlacePosition, Place> pl = pnlMainPane.getPlaces();
+//	    		for (Place p : pl.values()) {
+//					pnlMainPane.add(p);
+//	    		}
+//	    		validate();
+//	    		repaint();
+//			}
+//    	}
+
+Line 50:
+    // Test 2015-07-12
+    // Add JScrollPane around the map
+//	private JScrollPane spCentralArea;
+
+from MappedPlaces.MappedPlaces(String title)
+//	JComponent.setDefaultLocale(currentLocale);
+
+Line 115:
+// Test 2015-07-12
+//	spCentralArea = new JScrollPane(pnlMainPane, JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED, 
+//			JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED);
+//	add(spCentralArea, BorderLayout.CENTER);
+
+Line 143:
+//	pnlTopPane.add(btnTest);
+
+Line 184:
+//	btnTest.addActionListener(new TestListener());
+
+Line 196:
+//	Dimension t = pnlTopPane.getPreferredSize();
+//	Dimension e = pnlEastPane.getPreferredSize();
+//	Dimension c = pnlMainPane.getPreferredSize();
+//	setMaximumSize(new Dimension(c.width + e.width, t.height + c.height));
+
+
+from MappedPlaces.NewMapListener.actionPerformed(ActionEvent aev)
+Line 243:
+//	    String filename = imgfile.getName();	    
+//	    String filename = imgfile.getAbsolutePath();	    
+//	    bgImage = new ImageIcon(filename);
+
+Line 251:
+//	    centralArea = new JLabel(bgImage);
+//	    centralArea.setIcon(bgImage);
+//	    pnlCenter.add(centralArea);
+//	    MapPanel oldCenter = pnlCenter;
+
+Line 252:
+		// Test 2015-07-12
+//		spCentralArea.remove(pnlMainPane);
+//	        remove(spCentralArea);
+//	        pnlMainPane = new MapPanel(bgImage);
+//	        spCentralArea = new JScrollPane(pnlMainPane, JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED, 
+//				JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED);
+//	        add(spCentralArea, BorderLayout.CENTER);
+
+Line 267:
+//	    lblStatus.setText("Loaded map \"" + imgfile.getName() + "\" from " + imgfile.getPath());
+
+Line 268:
+//	    add(pnlCenter, BorderLayout.CENTER);
+//	    pnlCenter.repaint();
+//	    pnlCenter.validate();
+//	    revalidate();
+
+
+from MappedPlaces.OpenListener.actionPerformed(ActionEvent aev)
+Line 311:
+		// Test 2015-07-12
+//		spCentralArea.remove(pnlMainPane);
+
+Line 314:
+//		spCentralArea.add(pnlMainPane);
+
+Line 315:
+//	        pnlMainPane.loadData(file);
+
+Line 328:
+	    // For testing: test loading of a kart-file
+	    System.out.println("Categories: " + pnlMainPane.getCategories() + 
+		    		"\nPosPlaces: " + pnlMainPane.getAllPlacesByPos() + 
+		    		"\nNamedPlaces: " + pnlMainPane.getAllPlacesByName());
+Line 329:
+//	    ArrayList<PlaceCategory> categories = pnlMainPane.getCategories();
+//	    lstCategories.setListData(categories.toArray(new PlaceCategory[categories.size()]));
+
+Line 331:
+//	    HashMap<PlacePosition, Place> pl = pnlMainPane.getPositionedPlaces();
+//	    for (Place p : pl.values()) {
+//		pnlMainPane.add(p);
+//	    }
+
+Line 338:
+//	    lblStatus.setText("Loaded file \"" + file.getName() + "\"");
+
+from MappedPlaces.SaveListener.actionPerformed(ActionEvent aev)
+Line 369:
+//	    String filename = "";
+
+Line 383:
+//		filename = file.getName();
+
+
+from MappedPlaces.SearchListener.actionPerformed(ActionEvent aev)
+Line 594:
+	    System.out.println("Searching: " + name);
+
+Line 604:
+//	    if (pnlMainPane.getPlacesByName(name) != null) {
+//			ArrayList<Place> list = new ArrayList<Place>(pnlMainPane.getPlacesByName(name));
+//			System.out.println(list);
+//			for (Place p : list) {
+//		    	p.setSelected(true);
+//		    	pnlMainPane.setSelectedPlace(p, true);
+//			}
+//			pnlMainPane.setSelectedPlaces(list);
+//	    } else {
+//			lblStatus.setText(name + ": " + msgStrings.getString("msgStatusNoSuchPlaces"));
+//	    }
+
+Line 606:
+		System.out.println(list);
+
+
+**************
+from Place.java
+**************
+Line 35:
+//    protected static final float thickness = 2;
+
+from Place.Place(String name, PlacePosition pos, PlaceCategory cat)
+Line 69:
+//	this.folded = true;
+
+Line 71:
+	// Test 2015-08-01
+
+from Place.paintComponent(Graphics g)
+Line 131:
+//	Color colOut;
+//	Color colIn;
+
+Line 132:
+	// The points of the triangle are defined in the following order:
+	// 1 - the lower point, 2 - the upper left corner, 3 - the upper right corner
+//	int[] xPoints = {triWidth/2, 0, triWidth};
+//	int[] yPoints = {triHeight, 0, 0};
+//	int[] xiPoints = {xPoints[0], xPoints[1] + b, xPoints[2] - b};
+//	int[] yiPoints = {yPoints[0] - b, yPoints[1] + b, yPoints[2] + b};
+//	int[] xi2Points = {xPoints[0], xPoints[1] + b*2, xPoints[2] - b*2};
+//	int[] yi2Points = {yPoints[0] - b*2, yPoints[1] + b*2, yPoints[2] + b*2};
+//	if (category != null) {
+//	    colOut = category.getColor();
+//	} else {
+//	    colOut = Color.DARK_GRAY;
+//	}
+//	int newAlpha = (int) (colOut.getAlpha()*alphaRel);
+//	colIn = new Color(colOut.getRed(), colOut.getGreen(), colOut.getBlue(), newAlpha);
+	
+Alternative (older) paintComponent definition on line 146:
+//		protected void paintComponent(Graphics g) {
+//			System.out.print("a1 ");
+//			if (this.category != null)
+//	    		if (category.isHidden())
+//					return;
+//			if (!this.isVisible()) {
+//	    		return;
+//			}
+//			super.paintComponent(g);
+//			this.setFoldedSize();
+//			System.out.print("a2 ");
+//			Color colOut;
+//			Color colIn;
+//			// The points of the triangle are defined in the following order:
+//			// 1 - the lower point, 2 - the upper left corner, 3 - the upper right corner
+//			int[] xPoints = {triWidth/2, 0, triWidth};
+//			int[] yPoints = {triHight, 0, 0};
+//			int[] xiPoints = {xPoints[0], xPoints[1] + d, xPoints[2] - d};
+//			int[] yiPoints = {yPoints[0] - d, yPoints[1] + d, yPoints[2] + d};
+//			int[] xi2Points = {xPoints[0], xPoints[1] + d*2, xPoints[2] - d*2};
+//			int[] yi2Points = {yPoints[0] - d*2, yPoints[1] + d*2, yPoints[2] + d*2};
+//			if (category != null) {
+//	    		colOut = category.getColor();
+//        	} else {
+//            	colOut = Color.DARK_GRAY;
+//        	}
+//			int newAlpha = (int) (colOut.getAlpha()*alphaRel);
+//			colIn = new Color(colOut.getRed(), colOut.getGreen(), colOut.getBlue(), newAlpha);
+////		colIn = Color.WHITE;
+//
+//			g.setColor(colIn);	
+//			g.fillPolygon(xPoints, yPoints, 3);	
+//			g.setColor(colOut);
+//			g.drawPolygon(xiPoints, yiPoints, 3);
+//			g.drawPolygon(xi2Points, yi2Points, 3);
+//			g.setColor(Color.BLACK);
+//			g.drawPolygon(xPoints, yPoints, 3);
+//	
+//			System.out.print("a3 ");
+//	
+//			// Paint a border if this place is selected
+//			Border selectedBorder = BorderFactory.createLineBorder(Color.GRAY, 1);
+//			Border unselectedBorder = BorderFactory.createEmptyBorder();
+//			if (this.selected) {
+//	    		System.out.print("a4a ");
+//	    		this.setBorder(selectedBorder);
+//			} else {
+//	    		System.out.print("a4b ");
+//	    		this.setBorder(unselectedBorder);
+//			}
+//    	}
+  
+Alternative (older) definitions of equals on line 253:
+
+//  	/* (non-Javadoc)
+//  	* @see java.lang.Object#equals(java.lang.Object)
+//  	*/
+// 		@Override
+// 		public boolean equals(Object obj) {
+//			if (this == obj) {
+//	    		return true;
+//			}
+//			if (obj == null) {
+//	    		return false;
+//			}
+//			if (!(obj instanceof Place)) {
+//	    		return false;
+//			}
+//			Place other = (Place) obj;
+//			if (category == null) {
+//	    		if (other.category != null) {
+//					return false;
+//	    		}
+//			} else if (!category.equals(other.category)) {
+//	    		return false;
+//			}
+//			if (name == null) {
+//	    		if (other.name != null) {
+//					return false;
+//	    		}
+//			} else if (!name.equals(other.name)) {
+//	    		return false;
+//			}
+//			if (position == null) {
+//	    		if (other.position != null) {
+//					return false;
+//	    		}
+//			} else if (!position.equals(other.position)) {
+//	    		return false;
+//			}
+//			return true;
+// 		}
+
+**************
+from NamedPlace.java
+**************
+
+from NamedPlace.paintComponent(Graphics g)
+Line 77:
+//	    Color col;
+//	    if (category != null) {
+//		col = category.getColor();
+//	    } else {
+//		col = Color.DARK_GRAY;
+//	    }
+Line 80:
+//	    g.setColor(Color.BLACK);
+Line 81:
+//	    Border selectedBorder = BorderFactory.createLineBorder(Color.GRAY, 1);
+//	    Border unselectedBorder = BorderFactory.createEmptyBorder();
+
+Older paintComponent definition on line 89:
+//    	protected void paintComponent(Graphics g) {
+//			System.out.print("b1 ");
+//			if (this.folded) {
+//	    		System.out.print("b1a ");
+//	    		super.paintComponent(g);
+//			} else {
+//	    		System.out.print("b1b ");
+//	    		this.setUnfoldedSize();
+//	    		Color colOut;
+//	    		if (category != null) {
+//					colOut = category.getColor();
+//	    		} else {
+//					colOut = Color.DARK_GRAY;
+//	    		}
+//	    		int x0 = this.getX();
+//	    		int y0 = this.getY();
+//	    		int wi = this.getWidth();
+//	    		int hi = this.getHeight();
+//	    		g.setColor(colOut);
+//	    		g.drawRect(x0+2, y0+2, wi-4, hi-4);
+//	    		g.drawString(getName(), x0 + 8, (hi-4)/2);
+//	    		System.out.print("b2 ");
+//	    		// Paint a border if this place is selected
+//	    		Border selectedBorder = BorderFactory.createLineBorder(Color.GRAY, 1);
+//	    		Border unselectedBorder = BorderFactory.createEmptyBorder();
+//	    		if (this.selected) {
+//					System.out.print("b3a ");
+//					this.setBorder(selectedBorder);
+//	    		} else {
+//					System.out.print("b3b ");
+//				this.setBorder(unselectedBorder);
+//	    		}
+//			}
+//    	}
+
+**************
+from DescribedPlace.java
+**************
+Line 28:
+    // Test 2015-07-26
+//    private JTextArea ta;
+    
+Line 37:
+//    private static final Color UNFOLDED_BACKGROUND = Color.YELLOW;
+
+Line 93:
+    // Test 2015-07-26
+//    protected void setFoldedSize() {
+//	this.remove(ta);
+//	super.setFoldedSize();
+//    }
+
+from DescribedPlaces.unfold()
+Line 98:
+//	int height = BASIC_HEIGHT * UNFOLDED_HMULT + BORDER_THICKNESS*2;
+Line 101:
+//	if (descriptionSplit == null || descriptionSplit.isEmpty()) {
+//	    descriptionSplit = new ArrayList<String>(StringUtils.wrap(description, fm, width+12));
+//	}
+
+from DescribedPlaces.paintComponent(Graphics g)
+Line 121:
+	    // Test 2015-07-27
+//	    FontMetrics fm = g.getFontMetrics();
+//	    int fontHeight = fm.getHeight();
+Line 122:
+//	    g.drawString(getName(), 0 + 8, 0+16);
+Line 123:
+//	    g.drawString(description, 0 + 2, 0+32);
+
+from DescribedPlaces.toString()
+Line 193:
+//	String ret = super.toString();
+//	ret += "\n" + description + "\n";
+//	return ret;
+
+Older definition of equals on line 201:
+    
+//  	@Override
+// 		public boolean equals(Object other) {
+//			if (other == null)
+//	    		return false;
+//			if (!(other instanceof DescribedPlace)) {
+//	    		return false;
+//			} else {
+//	    		DescribedPlace otherplace = (DescribedPlace) other;
+//	    		boolean ret1 = name.equalsIgnoreCase(otherplace.getName()) 
+//		    								&& position.equals(otherplace.getPosition())
+//		    								&& description.equalsIgnoreCase(otherplace.getDescription());
+//	    		boolean ret2;
+//	    		if (this.category == null && otherplace.getCategory() == null) {
+//					ret2 = true;
+//	    		} else if ((this.category == null && otherplace.getCategory() != null) ||
+//		    				(this.category != null && otherplace.getCategory() == null)) {
+//					ret2 = false;
+//	    		} else {
+//					ret2 = this.category.equals(otherplace.getCategory());
+//	    		}
+//	    	return ret1 && ret2;
+//			}
+//  	}
+    
+**************
+from CategoryListRenderer.java
+**************    
+from CategoryListRenderer.getListCellRendererComponent(JList<? extends Object> list, Object value, int index, boolean isSelected, boolean cellHasFocus):
+Line 125:
+//	System.out.println("" + this.getHeight() + " " + d + " " + h);
+
+Line 127:
+//	setHorizontalAlignment(JLabel.RIGHT);
+//	setHorizontalTextPosition(JLabel.LEFT);
+
+**************
+from DescribedPlaceAddForm.java
+**************
+from DescribedPlaceAddForm.DescribedPlaceAddForm()
+Line 19:
+//	pnlMiddle.setLayout(new BoxLayout(pnlMiddle, BoxLayout.Y_AXIS));
+
+
+    
+
