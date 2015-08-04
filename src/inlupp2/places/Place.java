@@ -28,12 +28,10 @@ public abstract class Place extends JComponent implements Serializable {
     protected PlaceCategory   category;
     protected boolean         folded, selected;
     
-    
     // Attributes needed for painting the component
     protected static final int BASIC_WIDTH = 16;
     protected static final int BASIC_HEIGHT = 24;
     protected static final float REL_ALPHA = 0.75f;
-//    protected static final float thickness = 2;
     // Border thickness
     protected static final int BORDER_THICKNESS = 2;
     // Size difference between inner and outer triangle
@@ -68,10 +66,8 @@ public abstract class Place extends JComponent implements Serializable {
 	this.name = name;
 	this.position = pos;
 	this.category = cat;
-//	this.folded = true;
 	this.selected = false;
 	fold();
-	// Test 2015-08-01
 	if (category != null) {
 	    colOut = category.getColor();
 	} else {
@@ -132,24 +128,6 @@ public abstract class Place extends JComponent implements Serializable {
 		return;
 	super.paintComponent(g);
 	this.setOpaque(true);
-//	Color colOut;
-//	Color colIn;
-	// The points of the triangle are defined in the following order:
-	// 1 - the lower point, 2 - the upper left corner, 3 - the upper right corner
-//	int[] xPoints = {triWidth/2, 0, triWidth};
-//	int[] yPoints = {triHeight, 0, 0};
-//	int[] xiPoints = {xPoints[0], xPoints[1] + b, xPoints[2] - b};
-//	int[] yiPoints = {yPoints[0] - b, yPoints[1] + b, yPoints[2] + b};
-//	int[] xi2Points = {xPoints[0], xPoints[1] + b*2, xPoints[2] - b*2};
-//	int[] yi2Points = {yPoints[0] - b*2, yPoints[1] + b*2, yPoints[2] + b*2};
-//	if (category != null) {
-//	    colOut = category.getColor();
-//	} else {
-//	    colOut = Color.DARK_GRAY;
-//	}
-//	int newAlpha = (int) (colOut.getAlpha()*alphaRel);
-//	colIn = new Color(colOut.getRed(), colOut.getGreen(), colOut.getBlue(), newAlpha);
-	
 	g.setColor(colIn);
 	g.fillPolygon(xPoints, yPoints, 3);	
 	g.setColor(colOut);
@@ -157,69 +135,14 @@ public abstract class Place extends JComponent implements Serializable {
 	g.drawPolygon(xi2Points, yi2Points, 3);
 	g.setColor(Color.BLACK);
 	g.drawPolygon(xPoints, yPoints, 3);
-	
-	
-//	Border selectedBorder = BorderFactory.createLineBorder(Color.GRAY, 1);
-//	Border unselectedBorder = BorderFactory.createEmptyBorder();
+
 	if (this.selected) {
 	    this.setBorder(Place.selectedBorder);
 	} else {
 	    this.setBorder(Place.unselectedBorder);
 	}
     }
-
-//    protected void paintComponent(Graphics g) {
-//	System.out.print("a1 ");
-//	if (this.category != null)
-//	    if (category.isHidden())
-//		return;
-//	if (!this.isVisible()) {
-//	    return;
-//	}
-//	super.paintComponent(g);
-//	this.setFoldedSize();
-//	System.out.print("a2 ");
-//	Color colOut;
-//	Color colIn;
-//	// The points of the triangle are defined in the following order:
-//	// 1 - the lower point, 2 - the upper left corner, 3 - the upper right corner
-//	int[] xPoints = {triWidth/2, 0, triWidth};
-//	int[] yPoints = {triHight, 0, 0};
-//	int[] xiPoints = {xPoints[0], xPoints[1] + d, xPoints[2] - d};
-//	int[] yiPoints = {yPoints[0] - d, yPoints[1] + d, yPoints[2] + d};
-//	int[] xi2Points = {xPoints[0], xPoints[1] + d*2, xPoints[2] - d*2};
-//	int[] yi2Points = {yPoints[0] - d*2, yPoints[1] + d*2, yPoints[2] + d*2};
-//	if (category != null) {
-//	    colOut = category.getColor();
-//        } else {
-//            colOut = Color.DARK_GRAY;
-//        }
-//	int newAlpha = (int) (colOut.getAlpha()*alphaRel);
-//	colIn = new Color(colOut.getRed(), colOut.getGreen(), colOut.getBlue(), newAlpha);
-////	colIn = Color.WHITE;
-//
-//	g.setColor(colIn);	
-//	g.fillPolygon(xPoints, yPoints, 3);	
-//	g.setColor(colOut);
-//	g.drawPolygon(xiPoints, yiPoints, 3);
-//	g.drawPolygon(xi2Points, yi2Points, 3);
-//	g.setColor(Color.BLACK);
-//	g.drawPolygon(xPoints, yPoints, 3);
-//	
-//	System.out.print("a3 ");
-//	
-//	// Paint a border if this place is selected
-//	Border selectedBorder = BorderFactory.createLineBorder(Color.GRAY, 1);
-//	Border unselectedBorder = BorderFactory.createEmptyBorder();
-//	if (this.selected) {
-//	    System.out.print("a4a ");
-//	    this.setBorder(selectedBorder);
-//	} else {
-//	    System.out.print("a4b ");
-//	    this.setBorder(unselectedBorder);
-//	}
-//    }
-    
+  
     public String getName() {
 	return name;
     }
@@ -255,8 +178,6 @@ public abstract class Place extends JComponent implements Serializable {
     public void setSelected(boolean val) {
 	this.selected = val;
     }
-    
-
 
     @Override
     public boolean equals(Object other) {
@@ -322,50 +243,10 @@ public abstract class Place extends JComponent implements Serializable {
     public String toString() {
 	// TODO
 	String ret = name + " " + position.toString();
-	ret += " " + (category != null ? category.toString() : "Uncategorized ");
-	ret += folded ? " folded" : "unfolded";
+	ret += " " + (category != null ? category.toString() : "Uncategorized");
+	ret += folded ? " folded" : " unfolded";
 	ret += selected ? " selected" : "";
 	ret += isVisible() ? " visible" : "";
 	return ret;
     }
-
-//  /* (non-Javadoc)
-//  * @see java.lang.Object#equals(java.lang.Object)
-//  */
-// @Override
-// public boolean equals(Object obj) {
-//	if (this == obj) {
-//	    return true;
-//	}
-//	if (obj == null) {
-//	    return false;
-//	}
-//	if (!(obj instanceof Place)) {
-//	    return false;
-//	}
-//	Place other = (Place) obj;
-//	if (category == null) {
-//	    if (other.category != null) {
-//		return false;
-//	    }
-//	} else if (!category.equals(other.category)) {
-//	    return false;
-//	}
-//	if (name == null) {
-//	    if (other.name != null) {
-//		return false;
-//	    }
-//	} else if (!name.equals(other.name)) {
-//	    return false;
-//	}
-//	if (position == null) {
-//	    if (other.position != null) {
-//		return false;
-//	    }
-//	} else if (!position.equals(other.position)) {
-//	    return false;
-//	}
-//	return true;
-// }
-
 }

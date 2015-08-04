@@ -8,8 +8,6 @@
 
 package inlupp2;
 
-//import java.awt.GraphicsConfiguration;
-
 import java.awt.*;
 import java.awt.event.*;
 import java.awt.image.BufferedImage;
@@ -28,31 +26,13 @@ import javax.swing.filechooser.*;
 
 public class MappedPlaces extends JFrame {
 
-//    public class TestListener implements ActionListener {
-//
-//	@Override
-//	public void actionPerformed(ActionEvent e) {
-//	    System.out.println(pnlMainPane.toString());
-//	    System.out.println("Categories: " + pnlMainPane.getCategories() + "\nPlaces: " + pnlMainPane.getPlaces());
-//	    System.out.println("ListModel: " + lstmod.toString());
-//	    System.out.println("JList: " + lstCategories.toString());
-//	    HashMap<PlacePosition, Place> pl = pnlMainPane.getPlaces();
-//	    for (Place p : pl.values()) {
-//		pnlMainPane.add(p);
-//	    }
-//	    validate();
-//	    repaint();
-//	}
-//
-//    }
-
     private static final long serialVersionUID = 7329740490539533214L;
     
 //    static Locale 			currentLocale 	= new Locale("sv", "SE");	//$NON-NLS-1$ //$NON-NLS-2$
     static Locale			currentLocale 	= new Locale("en", "GB");	//$NON-NLS-1$ //$NON-NLS-2$
     public static ResourceBundle 	msgStrings 	= ResourceBundle.getBundle("inlupp2.resources.messages", currentLocale);	//$NON-NLS-1$ //$NON-NLS-2$
 
-    JFileChooser 	jfc 	= new JFileChooser(".");		//$NON-NLS-1$
+    JFileChooser 	jfc 	= new JFileChooser(".");				//$NON-NLS-1$
     JColorChooser 	jcc	= new JColorChooser(Color.BLACK);
     
     // Name of the current file
@@ -65,9 +45,6 @@ public class MappedPlaces extends JFrame {
     private JLabel	lblStatus	= new JLabel(msgStrings.getString("strStatus"), SwingConstants.LEFT); //$NON-NLS-1$
     
     private MapPanel pnlMainPane = new MapPanel();
-    // Test 2015-07-12
-    // Add JScrollPane around the map
-//    private JScrollPane spCentralArea;
     
     private JComboBox<String> 			cbxPlaceTypes 	= new JComboBox<>();
     private DefaultListModel<PlaceCategory> 	lstmod 		= new DefaultListModel<>();
@@ -84,9 +61,8 @@ public class MappedPlaces extends JFrame {
 	    btnCatHide 	= new JButton(msgStrings.getString("btnCatHide")), 				//$NON-NLS-1$
 	    btnCatNew 	= new JButton(msgStrings.getString("btnCatNew")), 				//$NON-NLS-1$
 	    btnCatDel 	= new JButton(msgStrings.getString("btnCatDel")); 				//$NON-NLS-1$
-//	    btnTest	= new JButton("Test main panel");
 
-    
+    // Listeners
     private CreatePlaceListener mAdapt 		= new CreatePlaceListener();
     private PlaceMouseListener 	pAdapt 		= new PlaceMouseListener();
     private SearchListener 	searchlistener 	= new SearchListener();
@@ -97,14 +73,13 @@ public class MappedPlaces extends JFrame {
      */
     public MappedPlaces(String title) throws HeadlessException {
 	super(title);
-//	JComponent.setDefaultLocale(currentLocale);
 	
 	// Menu Bar
 	JMenuBar 	mymenubar 	= new JMenuBar();
-	JMenu 		fileMenu 	= new JMenu(msgStrings.getString("menuFile")); //$NON-NLS-1$
-	JMenuItem 	miNew 		= new JMenuItem(msgStrings.getString("miNewMap")), //$NON-NLS-1$
-			miOpen 		= new JMenuItem(msgStrings.getString("miOpen")), //$NON-NLS-1$
-			miExit 		= new JMenuItem(msgStrings.getString("miExit")); //$NON-NLS-1$
+	JMenu 		fileMenu 	= new JMenu(msgStrings.getString("menuFile")); 			//$NON-NLS-1$
+	JMenuItem 	miNew 		= new JMenuItem(msgStrings.getString("miNewMap")), 		//$NON-NLS-1$
+			miOpen 		= new JMenuItem(msgStrings.getString("miOpen")), 		//$NON-NLS-1$
+			miExit 		= new JMenuItem(msgStrings.getString("miExit")); 		//$NON-NLS-1$
 
 	
 	ExitListener exLis 	= new ExitListener();
@@ -133,27 +108,19 @@ public class MappedPlaces extends JFrame {
 	
 	// Add central area
 	pnlMainPane.setLayout(null);
-//	pnlCenter.add(centralArea);
-//	centralArea.addMouseListener(mAdapt);
 	
-	// Test 2015-07-12
 	add(pnlMainPane, BorderLayout.CENTER);
-//	spCentralArea = new JScrollPane(pnlMainPane, JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED, 
-//			JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED);
-//	add(spCentralArea, BorderLayout.CENTER);
-		
 		
 	// Add top panel with buttons and other elements
-//	JPanel pnlTopPane = new JPanel();
 	Dimension hSpace = new Dimension(4, 1);
 	Dimension vSpace = new Dimension(1, 4);
 	pnlTopPane.setLayout(new BoxLayout(pnlTopPane, BoxLayout.X_AXIS));
-	JLabel lblNew = new JLabel(msgStrings.getString("lblNew")); //$NON-NLS-1$
+	JLabel lblNew = new JLabel(msgStrings.getString("lblNew")); 					//$NON-NLS-1$
 	pnlTopPane.add(Box.createRigidArea(hSpace));
 	pnlTopPane.add(lblNew);
 	pnlTopPane.add(Box.createRigidArea(hSpace));
-	cbxPlaceTypes.addItem(msgStrings.getString("cbxNamedPlaces")); //$NON-NLS-1$
-	cbxPlaceTypes.addItem(msgStrings.getString("cbxDescribedPlaces")); //$NON-NLS-1$
+	cbxPlaceTypes.addItem(msgStrings.getString("cbxNamedPlaces")); 					//$NON-NLS-1$
+	cbxPlaceTypes.addItem(msgStrings.getString("cbxDescribedPlaces")); 				//$NON-NLS-1$
 	cbxPlaceTypes.setMaximumSize(cbxPlaceTypes.getPreferredSize());
 	
 	pnlTopPane.add(cbxPlaceTypes);
@@ -171,11 +138,9 @@ public class MappedPlaces extends JFrame {
 	pnlTopPane.add(Box.createRigidArea(hSpace));
 	pnlTopPane.add(btnWhat);
 	pnlTopPane.add(Box.createHorizontalGlue());
-//	pnlTopPane.add(btnTest);
 	add(pnlTopPane, BorderLayout.NORTH);
 	
 	// Add right panel with category list and buttons
-//	JPanel pnlEastPane = new JPanel();
 	pnlEastPane.setLayout(new BoxLayout(pnlEastPane, BoxLayout.Y_AXIS));
 	pnlEastPane.add(Box.createVerticalGlue());
 	pnlEastPane.add(Box.createRigidArea(vSpace));
@@ -205,7 +170,6 @@ public class MappedPlaces extends JFrame {
 	cbxPlaceTypes.addActionListener(new NewPlaceListener());
 	tfSearch.addFocusListener(new SearchFieldFocusListener());
 	
-//	btnSearch.addActionListener(new SearchListener());
 	tfSearch.addActionListener(searchlistener);
 	btnSearch.addActionListener(searchlistener);
 	btnSearch.setEnabled(false);
@@ -215,13 +179,11 @@ public class MappedPlaces extends JFrame {
 	btnCatHide.addActionListener(new HideCategoryListener());
 	btnCatNew.addActionListener(new NewCategoryListener());
 	btnCatDel.addActionListener(new DeleteCategoryListener());
-	
-//	btnTest.addActionListener(new TestListener());	
+
 	
 	pnlSouthPane.setLayout(new BoxLayout(pnlSouthPane, BoxLayout.X_AXIS));
 	pnlSouthPane.setBorder(new EtchedBorder(EtchedBorder.LOWERED));
 	pnlSouthPane.setPreferredSize(new Dimension(this.getWidth(), 18));
-//	lblStatus.setHorizontalAlignment(SwingConstants.LEFT);
 	pnlSouthPane.add(lblStatus);
 	pnlSouthPane.add(Box.createHorizontalGlue());
 	add(pnlSouthPane, BorderLayout.SOUTH);
@@ -229,10 +191,6 @@ public class MappedPlaces extends JFrame {
 	addWindowListener(exLis);
 	setDefaultCloseOperation(DO_NOTHING_ON_CLOSE);
 	setMinimumSize(new Dimension(980, 300));
-//	Dimension t = pnlTopPane.getPreferredSize();
-//	Dimension e = pnlEastPane.getPreferredSize();
-//	Dimension c = pnlMainPane.getPreferredSize();
-//	setMaximumSize(new Dimension(c.width + e.width, t.height + c.height));
 	pack();
 	setVisible(true);
     }
@@ -241,11 +199,12 @@ public class MappedPlaces extends JFrame {
      * @param title
      * @param gc
      */
-//    public MappedPlaces(String title, GraphicsConfiguration gc) {
-//	super(title, gc);
-//	// TODO Auto-generated constructor stub
-//    }
-    
+    /*
+    public MappedPlaces(String title, GraphicsConfiguration gc) {
+	super(title, gc);
+	// TODO Auto-generated constructor stub
+    }
+    */
     
     /**
      * Listener for menu item "New"
@@ -259,46 +218,35 @@ public class MappedPlaces extends JFrame {
 	@Override
 	public void actionPerformed(ActionEvent aev) {
 	    if (pnlMainPane.isModified()) {
-		int dialogAnswer = JOptionPane.showConfirmDialog(MappedPlaces.this, msgStrings.getString("strConfirmContinue")); //$NON-NLS-1$
-		if (dialogAnswer != JOptionPane.OK_OPTION)
+		int dialogAnswer = JOptionPane.showConfirmDialog(MappedPlaces.this, 
+							msgStrings.getString("strConfirmContinue")); 	//$NON-NLS-1$
+		if (dialogAnswer != JOptionPane.OK_OPTION) {
 		    return;
+		}
 	    }
 //	    jfc.setLocale(new Locale("sv"));
 	    jfc.resetChoosableFileFilters();
 	    FileNameExtensionFilter fnef = 
-		    new FileNameExtensionFilter(msgStrings.getString("strImageFiles"), "png", "jpg", "jpeg", "gif", "bmp", "wbmp"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$ //$NON-NLS-5$ //$NON-NLS-6$ //$NON-NLS-7$
+		    new FileNameExtensionFilter(msgStrings.getString("strImageFiles"), 			//$NON-NLS-1$
+			    "png", "jpg", "jpeg", "gif", "bmp", "wbmp"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$ //$NON-NLS-5$ //$NON-NLS-6$
 	    jfc.addChoosableFileFilter(fnef);
 	    jfc.setFileSelectionMode(JFileChooser.FILES_ONLY);
 	    jfc.setFileFilter(fnef);
 	    jfc.setSelectedFile(new File(""));
 	    int dlgResult = jfc.showOpenDialog(MappedPlaces.this);
-	    if (dlgResult != JFileChooser.APPROVE_OPTION)
+	    if (dlgResult != JFileChooser.APPROVE_OPTION) {
 		return;
+	    }		
 	    File imgfile = jfc.getSelectedFile();
-//	    String filename = imgfile.getName();	    
-//	    String filename = imgfile.getAbsolutePath();	    
-//	    bgImage = new ImageIcon(filename);
-	 // 2015-05-14 Changed from Image to BufferedImage
+	    // 2015-05-14 Changed from Image to BufferedImage
 	    BufferedImage bgImage = null;
-//	    Image bgImage = null;
 	    jfc.resetChoosableFileFilters();
 	    try {
 		bgImage = ImageIO.read(imgfile);
 	    } catch (IOException e) {
-		System.err.println(msgStrings.getString("errorMapLoad") + e.getMessage()); 			//$NON-NLS-1$
+		System.err.println(msgStrings.getString("errorMapLoad") + e.getMessage()); 		//$NON-NLS-1$
 	    }
-//	    centralArea = new JLabel(bgImage);
-//	    centralArea.setIcon(bgImage);
-//	    pnlCenter.add(centralArea);
-//	    MapPanel oldCenter = pnlCenter;
 	    try {
-		// Test 2015-07-12
-//		spCentralArea.remove(pnlMainPane);
-//	        remove(spCentralArea);
-//	        pnlMainPane = new MapPanel(bgImage);
-//	        spCentralArea = new JScrollPane(pnlMainPane, JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED, 
-//				JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED);
-//	        add(spCentralArea, BorderLayout.CENTER);
 	        remove(pnlMainPane);
 	        pnlMainPane = new MapPanel(bgImage);
 	        add(pnlMainPane, BorderLayout.CENTER);
@@ -314,12 +262,7 @@ public class MappedPlaces extends JFrame {
 	    
 	    btnSearch.setEnabled(true);
 	    
-//	    lblStatus.setText("Loaded map \"" + imgfile.getName() + "\" from " + imgfile.getPath());
 	    lblStatus.setText(msgStrings.getString("msgStatusMapLoaded") + docfile + "\""); 		//$NON-NLS-1$
-//	    add(pnlCenter, BorderLayout.CENTER);
-//	    pnlCenter.repaint();
-//	    pnlCenter.validate();
-//	    revalidate();
 	    Dimension t = pnlTopPane.getPreferredSize();
 	    Dimension e = pnlEastPane.getPreferredSize();
 	    Dimension c = pnlMainPane.getPreferredSize();
@@ -341,11 +284,12 @@ public class MappedPlaces extends JFrame {
 	 */
 	@Override
 	public void actionPerformed(ActionEvent aev) {
-	    // TODO Auto-generated method stub
 	    if (pnlMainPane.isModified()) {
-		int dialogAnswer = JOptionPane.showConfirmDialog(MappedPlaces.this, msgStrings.getString("strConfirmContinue")); //$NON-NLS-1$
-		if (dialogAnswer != JOptionPane.OK_OPTION)
+		int dialogAnswer = JOptionPane.showConfirmDialog(MappedPlaces.this, 
+							msgStrings.getString("strConfirmContinue")); 	//$NON-NLS-1$
+		if (dialogAnswer != JOptionPane.OK_OPTION) {
 		    return;
+		}		    
 	    }
 //	    jfc.setLocale(currentLocale);
 	    jfc.resetChoosableFileFilters();
@@ -355,22 +299,20 @@ public class MappedPlaces extends JFrame {
 	    jfc.setFileSelectionMode(JFileChooser.FILES_ONLY);
 	    jfc.setFileFilter(fnef);
 	    int dlgResult = jfc.showOpenDialog(MappedPlaces.this);
-	    if (dlgResult != JFileChooser.APPROVE_OPTION)
+	    if (dlgResult != JFileChooser.APPROVE_OPTION) {
 		return;
+	    }		
 	    File file = jfc.getSelectedFile();
 	    docfile = file.getAbsolutePath();
 	    jfc.resetChoosableFileFilters();
 	    try {
-		// Test 2015-07-12
-//		spCentralArea.remove(pnlMainPane);
 		remove(pnlMainPane);
 		lstmod.clear();
 		pnlMainPane = new MapPanel(file);
-//		spCentralArea.add(pnlMainPane);
 	        add(pnlMainPane, BorderLayout.CENTER);	        
-//	        pnlMainPane.loadData(file);
-	        for(Component comp : pnlMainPane.getComponents())
-		    comp.addMouseListener(pAdapt);
+	        for(Component comp : pnlMainPane.getComponents()) {
+	            comp.addMouseListener(pAdapt);
+	        }		    
             } catch (ClassNotFoundException cnfe) {
 	        // TODO Handle exception
 	        cnfe.printStackTrace();
@@ -381,19 +323,9 @@ public class MappedPlaces extends JFrame {
 	        // TODO Handle exception
 	        ioe.printStackTrace();
             }
-	    System.out.println("Categories: " + pnlMainPane.getCategories() + 
-		    		"\nPosPlaces: " + pnlMainPane.getAllPlacesByPos() + 
-		    		"\nNamedPlaces: " + pnlMainPane.getAllPlacesByName());
-//	    ArrayList<PlaceCategory> cats = pnlMainPane.getCategories();
-//	    ArrayList<PlaceCategory> categories = pnlMainPane.getCategories();
-//	    lstCategories.setListData(categories.toArray(new PlaceCategory[categories.size()]));
 	    for (PlaceCategory c : pnlMainPane.getCategories()) {
 		lstmod.addElement(c);
 	    }
-//	    HashMap<PlacePosition, Place> pl = pnlMainPane.getPositionedPlaces();
-//	    for (Place p : pl.values()) {
-//		pnlMainPane.add(p);
-//	    }
 	    if (!(miSave.isEnabled() && miSaveAs.isEnabled())) {
 		miSave.setEnabled(true);
 		miSaveAs.setEnabled(true);
@@ -401,7 +333,6 @@ public class MappedPlaces extends JFrame {
 	    if (!btnSearch.isEnabled()) {
 		btnSearch.setEnabled(true);
 	    }
-//	    lblStatus.setText("Loaded file \"" + file.getName() + "\"");
 	    lblStatus.setText(msgStrings.getString("msgStatusOpened") + 
 		    docfile.substring(docfile.lastIndexOf(File.separator)+1) + 
 		    msgStrings.getString("msgStatusAt") + 
@@ -415,7 +346,6 @@ public class MappedPlaces extends JFrame {
 	    validate();
 	    repaint();
 	}
-
     }
 
     /**
@@ -434,13 +364,12 @@ public class MappedPlaces extends JFrame {
 			msgStrings.getString("msgNoMapTitle"), JOptionPane.ERROR_MESSAGE); 			//$NON-NLS-1$
 		return;
 	    }
-//	    String filename = "";
 	    JMenuItem mi = (JMenuItem) aev.getSource();
-	    if (mi.getText() == msgStrings.getString("miSaveAs") || docfile.equalsIgnoreCase("")) {
+	    if (mi.getText() == msgStrings.getString("miSaveAs") || docfile.equalsIgnoreCase("")) {	//$NON-NLS-1$ //$NON-NLS-2$
 //		jfc.setLocale(currentLocale);
 		jfc.resetChoosableFileFilters();
 		FileNameExtensionFilter fnef = 
-			new FileNameExtensionFilter(msgStrings.getString("strMappedFiles"), "kart"); //$NON-NLS-1$ //$NON-NLS-2$
+			new FileNameExtensionFilter(msgStrings.getString("strMappedFiles"), "kart"); 	//$NON-NLS-1$ //$NON-NLS-2$
 		jfc.addChoosableFileFilter(fnef);
 		jfc.setFileSelectionMode(JFileChooser.FILES_ONLY);
 		jfc.setFileFilter(fnef);
@@ -449,7 +378,6 @@ public class MappedPlaces extends JFrame {
 		    return;
 		File file = jfc.getSelectedFile();
 		docfile = file.getAbsolutePath();
-//		filename = file.getName();
 		if (!docfile.endsWith(".kart")) {
 		    docfile += ".kart";
 		}
@@ -473,7 +401,6 @@ public class MappedPlaces extends JFrame {
 		    msgStrings.getString("msgStatusAt") + 
 		    docfile.substring(0, docfile.lastIndexOf(File.separator)+1) + "\"");
 	}
-
     }
     
     /**
@@ -485,9 +412,11 @@ public class MappedPlaces extends JFrame {
 	
 	private void exitProgram(){
 	    if (pnlMainPane.isModified()) {
-		int dialogAnswer = JOptionPane.showConfirmDialog(MappedPlaces.this, msgStrings.getString("strConfirmExit")); //$NON-NLS-1$
-		if (dialogAnswer == JOptionPane.OK_OPTION)
+		int dialogAnswer = JOptionPane.showConfirmDialog(MappedPlaces.this, 
+							msgStrings.getString("strConfirmExit")); 	//$NON-NLS-1$
+		if (dialogAnswer == JOptionPane.OK_OPTION) {
 		    System.exit(0);
+		}		    
 	    } else {
 		System.exit(0);
 	    }
@@ -550,13 +479,13 @@ public class MappedPlaces extends JFrame {
 	    if (placeType.equalsIgnoreCase(msgStrings.getString("cbxNamedPlaces"))) { 			//$NON-NLS-1$
 		NamedPlaceAddForm inputFrm = new NamedPlaceAddForm();
 		int dlgResult = JOptionPane.showConfirmDialog(MappedPlaces.this, inputFrm, 
-							msgStrings.getString("strNewNamedPlace"), 
-							JOptionPane.OK_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE); //$NON-NLS-1$
+						msgStrings.getString("strNewNamedPlace"), 		//$NON-NLS-1$
+						JOptionPane.OK_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE); 
 		if (dlgResult == JOptionPane.OK_OPTION) {
 		    String newPlaceName = inputFrm.getName();
-		    if (newPlaceName == "") {   //$NON-NLS-1$
+		    if (newPlaceName == "") {   							//$NON-NLS-1$
 			JOptionPane.showMessageDialog(MappedPlaces.this, 
-	    			msgStrings.getString("msgNewPlaceErr"),  //$NON-NLS-1$
+	    			msgStrings.getString("msgNewPlaceErr"),  				//$NON-NLS-1$
 	    			msgStrings.getString("dlgPlaceErrTitle"), JOptionPane.ERROR_MESSAGE); 	//$NON-NLS-1$
 			return;
 		    }
@@ -569,14 +498,15 @@ public class MappedPlaces extends JFrame {
 			newPlace = new NamedPlace(newPlaceName, newPos);
 		    }
 		    pnlMainPane.addPlace(newPos, newPlaceName, newPlace);
-		    lblStatus.setText("The place named \'" + newPlace.getName() + "\' has been created");
+		    lblStatus.setText(msgStrings.getString("msgStatusCreated1") 			//$NON-NLS-1$
+			    + newPlace.getName() + msgStrings.getString("msgStatusCreated2"));		//$NON-NLS-1$
 		    newPlace.addMouseListener(pAdapt);
 		}
 	    } else if (placeType.equalsIgnoreCase(msgStrings.getString("cbxDescribedPlaces"))) { 	//$NON-NLS-1$
 		DescribedPlaceAddForm inputFrm = new DescribedPlaceAddForm();
 		int dlgResult = JOptionPane.showConfirmDialog(MappedPlaces.this, inputFrm, 
-							msgStrings.getString("strNewDescribedPlace"), 
-							JOptionPane.OK_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE); //$NON-NLS-1$
+						msgStrings.getString("strNewDescribedPlace"), 		//$NON-NLS-1$
+						JOptionPane.OK_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE); 
 		if (dlgResult == JOptionPane.OK_OPTION) {
 		    String newPlaceName = inputFrm.getName();
 		    String newPlaceDescription = inputFrm.getDescription();
@@ -601,7 +531,8 @@ public class MappedPlaces extends JFrame {
 			newPlace = new DescribedPlace(newPlaceName, new PlacePosition(x, y), newPlaceDescription);
 		    }		    
 		    pnlMainPane.addPlace(newPos, newPlaceName, newPlace);
-		    lblStatus.setText("The place named \'" + newPlaceName + "\' has been created");
+		    lblStatus.setText(msgStrings.getString("msgStatusCreated1")				//$NON-NLS-1$
+			    + newPlaceName + msgStrings.getString("msgStatusCreated2"));		//$NON-NLS-1$
 		    newPlace.addMouseListener(pAdapt);
 		}
 	    } else {
@@ -614,8 +545,8 @@ public class MappedPlaces extends JFrame {
 		miSaveAs.setEnabled(true);
 	    }
 	    
+	    pnlMainPane.revalidate();
 	    pnlMainPane.repaint();
-	    pnlMainPane.validate();
 	    pnlMainPane.removeMouseListener(mAdapt);
 	    pnlMainPane.setCursor(Cursor.getDefaultCursor());
 	}
@@ -657,37 +588,24 @@ public class MappedPlaces extends JFrame {
 	public void actionPerformed(ActionEvent e) {
 	    // TODO Auto-generated method stub
 	    String name = tfSearch.getText();
-	    
+	    	    
 	    if(!pnlMainPane.hasMapImage()) {
 		return;
 	    }
-	    if(name.equals("")) {
+	    if(name.equals("") || name.equals(msgStrings.getString("strSearch"))) {		//$NON-NLS-1$ //$NON-NLS-2$
+		lblStatus.setText(msgStrings.getString("msgStatusWriteName"));			//$NON-NLS-1$
 		return;
 	    }
 	    
 	    lblStatus.setText("Searching: " + name);
 
-//	    if (pnlMainPane.getPlacesByName(name) != null) {
-//		ArrayList<Place> list = new ArrayList<Place>(pnlMainPane.getPlacesByName(name));
-//		System.out.println(list);
-//		for (Place p : list) {
-//		    p.setSelected(true);
-//		    pnlMainPane.setSelectedPlace(p, true);
-//		}
-//		pnlMainPane.setSelectedPlaces(list);
-//	    } else {
-//		lblStatus.setText(name + ": " + msgStrings.getString("msgStatusNoSuchPlaces"));
-//	    }
-	    
 	    ArrayList<Place> list = new ArrayList<Place>(pnlMainPane.getPlacesByName(name));
 	    if(!list.isEmpty()) {
-		System.out.println(list);
 		pnlMainPane.setSelectedPlaces(list);
 	    } else {
 		pnlMainPane.setSelectedPlaces(list);
-		lblStatus.setText(name + ": " + msgStrings.getString("msgStatusNoSuchPlaces"));
-	    }
-	    
+		lblStatus.setText(name + ": " + msgStrings.getString("msgStatusNoSuchPlaces"));	//$NON-NLS-1$ //$NON-NLS-2$
+	    }	    
 	    pnlMainPane.repaint();
 	}
     }
@@ -704,7 +622,6 @@ public class MappedPlaces extends JFrame {
 	@Override
 	public void actionPerformed(ActionEvent e) {
 	    // TODO Auto-generated method stub
-
 	}
 
     }
@@ -721,7 +638,12 @@ public class MappedPlaces extends JFrame {
 	@Override
 	public void actionPerformed(ActionEvent e) {
 	    // TODO Auto-generated method stub
-
+//	    Collection<Place> places = pnlMainPane.getSelectedPlaces();
+//	    pnlMainPane.removePlaces(places);
+//	    pnlMainPane.repaint();
+	    pnlMainPane.removeSelected();
+//	    pnlMainPane.revalidate();
+	    pnlMainPane.repaint();
 	}
 
     }
@@ -817,7 +739,6 @@ public class MappedPlaces extends JFrame {
 		}
 	    }
 	}
-
     }
 
     /**
@@ -834,7 +755,6 @@ public class MappedPlaces extends JFrame {
 	    // TODO Auto-generated method stub
 
 	}
-
     }
 
     class PlaceMouseListener extends MouseAdapter {

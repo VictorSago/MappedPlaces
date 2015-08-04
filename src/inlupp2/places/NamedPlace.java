@@ -8,20 +8,16 @@
 
 package inlupp2.places;
 
-//import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.FontMetrics;
 import java.awt.Graphics;
-
-//import javax.swing.BorderFactory;
-//import javax.swing.border.Border;
 
 public class NamedPlace extends Place {
     
     private static final long serialVersionUID = 5L;
     
-    private static final int UNFOLDED_WIDTH 	= 5;
-    private static final int UNFOLDED_HEIGHT 	= 2;
+    private static final int UNFOLDED_WMULT 	= 5;
+    private static final int UNFOLDED_HMULT 	= 2;
     
     protected static final int HMARGIN = 4;
     protected static final int VMARGIN = 4;
@@ -61,8 +57,8 @@ public class NamedPlace extends Place {
     }
     
     protected void unfold() {
-	int wi = BASIC_WIDTH * UNFOLDED_WIDTH + BORDER_THICKNESS*2;
-	int hi = BASIC_HEIGHT * UNFOLDED_HEIGHT + BORDER_THICKNESS*2;
+	int wi = BASIC_WIDTH * UNFOLDED_WMULT + BORDER_THICKNESS*2;
+	int hi = BASIC_HEIGHT * UNFOLDED_HMULT + BORDER_THICKNESS*2;
 	int x0 = (int) (position.getX() - BASIC_WIDTH/2 - BORDER_THICKNESS);
 	int y0 = (int) (position.getY() - BASIC_HEIGHT - BORDER_THICKNESS);
 	
@@ -78,19 +74,10 @@ public class NamedPlace extends Place {
 	} else {
 	    this.setOpaque(true);
 	    unfold();
-//	    Color col;
-//	    if (category != null) {
-//		col = category.getColor();
-//	    } else {
-//		col = Color.DARK_GRAY;
-//	    }
 	    FontMetrics fm = g.getFontMetrics();
 	    g.setColor(colOut);
 	    g.drawRoundRect(BORDER_THICKNESS, BORDER_THICKNESS, this.getWidth()-BORDER_THICKNESS*2-1, this.getHeight()-BORDER_THICKNESS*2-1, 20, 20);
-//	    g.setColor(Color.BLACK);
 	    g.drawString(getName(), BORDER_THICKNESS + HMARGIN, (this.getHeight() - fm.getHeight()) / 2 + fm.getAscent());
-//	    Border selectedBorder = BorderFactory.createLineBorder(Color.GRAY, 1);
-//	    Border unselectedBorder = BorderFactory.createEmptyBorder();
 	    if (this.selected) {
 		this.setBorder(Place.selectedBorder);
 	    } else {
@@ -98,42 +85,7 @@ public class NamedPlace extends Place {
 	    }
 	}
     }
-    
-//    protected void paintComponent(Graphics g) {
-//	System.out.print("b1 ");
-//	if (this.folded) {
-//	    System.out.print("b1a ");
-//	    super.paintComponent(g);
-//	} else {
-//	    System.out.print("b1b ");
-//	    this.setUnfoldedSize();
-//	    Color colOut;
-//	    if (category != null) {
-//		colOut = category.getColor();
-//	    } else {
-//		colOut = Color.DARK_GRAY;
-//	    }
-//	    int x0 = this.getX();
-//	    int y0 = this.getY();
-//	    int wi = this.getWidth();
-//	    int hi = this.getHeight();
-//	    g.setColor(colOut);
-//	    g.drawRect(x0+2, y0+2, wi-4, hi-4);
-//	    g.drawString(getName(), x0 + 8, (hi-4)/2);
-//	    System.out.print("b2 ");
-//	    // Paint a border if this place is selected
-//	    Border selectedBorder = BorderFactory.createLineBorder(Color.GRAY, 1);
-//	    Border unselectedBorder = BorderFactory.createEmptyBorder();
-//	    if (this.selected) {
-//		System.out.print("b3a ");
-//		this.setBorder(selectedBorder);
-//	    } else {
-//		System.out.print("b3b ");
-//		this.setBorder(unselectedBorder);
-//	    }
-//	}
-//    }
-    
+  
     @Override
     public boolean equals(Object other) {
 	if (this == other) {
@@ -171,8 +123,12 @@ public class NamedPlace extends Place {
 
     @Override
     public String toString() {
-	// TODO
-	return super.toString();
+	String ret = "Named: " + name + " " + position.toString();
+	ret += " " + (category != null ? category.toString() : "Uncategorized");
+	ret += folded ? " folded" : " unfolded";
+	ret += selected ? " selected" : "";
+	ret += isVisible() ? " visible" : "";
+	return ret;
     }
 
 }

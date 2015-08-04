@@ -123,5 +123,4 @@ public class PlaceCategory implements Serializable {
 	ret += ")";
 	return ret;
     }
-
 }

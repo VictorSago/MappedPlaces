@@ -50,9 +50,11 @@ public class PlacePosition implements Serializable {
      * newX = x
      * newY = y
      */
-//    public void move(int x, int y) {
-//	// TODO
-//    }
+    /*
+    public void move(int x, int y) {
+	// TODO
+    }
+    */
     
     /*
      * 
@@ -60,9 +62,11 @@ public class PlacePosition implements Serializable {
      * newX = oldX + dx
      * newY = oldY + dy
      */
-//    public void translate(int dx, int dy) {
-//	// TODO
-//    }
+    /*
+    public void translate(int dx, int dy) {
+	// TODO
+    }
+    */
     
     @Override
     public boolean equals(Object pos) {
@@ -98,5 +102,4 @@ public class PlacePosition implements Serializable {
     public String toString() {
 	return "(" + xPos + ", " + yPos + ")";
     }
-
 }

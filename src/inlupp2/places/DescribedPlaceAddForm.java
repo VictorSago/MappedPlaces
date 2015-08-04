@@ -16,7 +16,6 @@ public class DescribedPlaceAddForm extends PlaceAddForm {
     public DescribedPlaceAddForm() {
 	super();
 	JPanel pnlMiddle = new JPanel();
-//	pnlMiddle.setLayout(new BoxLayout(pnlMiddle, BoxLayout.Y_AXIS));
 	pnlMiddle.setLayout(new BorderLayout(2, 2));
 	JLabel labelDescription = new JLabel(MappedPlaces.msgStrings.getString("dlgPlaceDescription")); //$NON-NLS-1$
 	pnlMiddle.add(labelDescription, BorderLayout.NORTH);

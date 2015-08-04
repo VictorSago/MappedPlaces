@@ -5,6 +5,7 @@ package inlupp2.places;
 
 import java.awt.Color;
 import java.awt.Component;
+import java.awt.Dimension;
 //import java.awt.Dimension;
 //import java.awt.Font;
 import java.awt.Graphics;
@@ -21,6 +22,9 @@ import javax.swing.JList;
 @SuppressWarnings("serial")
 public class CategoryListRenderer extends DefaultListCellRenderer {
 
+    private static final int STANDARD_WIDTH = 32;
+    private static final int STANDARD_HEIGHT = 16;
+    
     /**
      * @author zeron
      *
@@ -35,8 +39,8 @@ public class CategoryListRenderer extends DefaultListCellRenderer {
 	 */
 	public CategoryIcon() {
 	    // TODO Auto-generated constructor stub
-	    width = 32;
-	    height = 16;	    
+	    width = STANDARD_WIDTH;
+	    height = STANDARD_HEIGHT;	    
 	}
 
 	public CategoryIcon(int w, int h) {
@@ -59,12 +63,12 @@ public class CategoryListRenderer extends DefaultListCellRenderer {
 	    height = h;	    
 	}
 	
-//	public CategoryIcon(Color col, Dimension size) {
-//	    // TODO Auto-generated constructor stub
-//	    color = col;
-//	    width = size.width;
-//	    height = size.height;
-//	}
+	public CategoryIcon(Color col, Dimension size) {
+	    // TODO Auto-generated constructor stub
+	    color = col;
+	    width = size.width;
+	    height = size.height;
+	}
 	
 	/* (non-Javadoc)
 	 * @see javax.swing.Icon#paintIcon(java.awt.Component, java.awt.Graphics, int, int)
@@ -109,7 +113,6 @@ public class CategoryListRenderer extends DefaultListCellRenderer {
     @Override
     public Component getListCellRendererComponent(JList<? extends Object> list, Object value, int index,
 	    					boolean isSelected, boolean cellHasFocus) {
-	// TODO Auto-generated method stub
 	super.getListCellRendererComponent(list, value, index, isSelected, cellHasFocus);
 	PlaceCategory cat = (PlaceCategory)value;
 	
@@ -119,14 +122,10 @@ public class CategoryListRenderer extends DefaultListCellRenderer {
 	}
 	Color col = cat.getColor();
 	int h = getFont().getSize();
-//	System.out.println("" + this.getHeight() + " " + d + " " + h);
 	
 	CategoryIcon catIcon = new CategoryIcon(col, 2 * (h + 2), h + 2);
-	
-//	setHorizontalAlignment(JLabel.RIGHT);
-//	setHorizontalTextPosition(JLabel.LEFT);
 	setIcon(catIcon);
+	
 	return this;
     }
-
 }

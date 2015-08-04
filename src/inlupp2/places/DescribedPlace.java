@@ -14,12 +14,10 @@ import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.FontMetrics;
 import java.awt.Graphics;
-import java.util.ArrayList;
-
 //import javax.swing.JTextArea;
-
 //import javax.swing.BorderFactory;
 //import javax.swing.border.Border;
+import java.util.ArrayList;
 
 public class DescribedPlace extends Place {
     
@@ -27,19 +25,16 @@ public class DescribedPlace extends Place {
     
     private String description;
     
-    // Test 2015-07-26
-//    private JTextArea ta;
-    
     // Test 2015-07-27
     private ArrayList<String> descriptionSplit;
     
-    private static final int UNFOLDED_WIDTH 	= 5;
-//    private static final int UNFOLDED_HEIGHT 	= 10;
+    private static final int UNFOLDED_WMULT 	= 5;
+//    private static final int UNFOLDED_HMULT 	= 10;
     
     protected static final int HMARGIN = 4;
     protected static final int VMARGIN = 2;
     
-    private static final Color UNFOLDED_BACKGROUND = Color.YELLOW;
+    private static final Color UNFOLDED_BACKGROUND = new Color(1.0f, 1.0f, 0.0f, 0.75f);
     
     /**
      * private constructor to prevent instantiation without attributes
@@ -94,33 +89,22 @@ public class DescribedPlace extends Place {
 	super(name, pos, cat);
 	this.description = descr;
     }
-    
-    // Test 2015-07-26
-//    protected void setFoldedSize() {
-//	this.remove(ta);
-//	super.setFoldedSize();
-//    }
-    
-    protected void unfold() {
-	int width = BASIC_WIDTH * UNFOLDED_WIDTH + BORDER_THICKNESS*2;
-//	int height = BASIC_HEIGHT * UNFOLDED_HEIGHT + BORDER_THICKNESS*2;
-	
+        
+    protected void unfold() {	
 	int x0 = (int) (position.getX() - BASIC_WIDTH/2 - BORDER_THICKNESS);
 	int y0 = (int) (position.getY() - BASIC_HEIGHT - BORDER_THICKNESS);
 	
+	int width = BASIC_WIDTH * UNFOLDED_WMULT + BORDER_THICKNESS*2;
 	
 	// Test 2015-07-27
 	FontMetrics fm = this.getFontMetrics(getFont());
-//	if (descriptionSplit == null || descriptionSplit.isEmpty()) {
-//	    descriptionSplit = new ArrayList<String>(StringUtils.wrap(description, fm, width+12));
-//	}
-	descriptionSplit = new ArrayList<String>(StringUtils.wrap(description, fm, width-BORDER_THICKNESS*2-HMARGIN*2));
+	descriptionSplit = new ArrayList<String>(StringUtils.wrap(description, fm, width - BORDER_THICKNESS*2 - HMARGIN*2));
 	
 	int height = fm.getHeight() * (descriptionSplit.size()+1) + BORDER_THICKNESS*2 + VMARGIN*2;
 	
 	setBounds(x0, y0, width, height);
 	setPreferredSize(new Dimension(width, height));
-
+	
 	validate();
     }
     
@@ -129,32 +113,17 @@ public class DescribedPlace extends Place {
 	    super.paintComponent(g);
 	} else {
 	    this.setOpaque(true);
-//	    this.setUnfoldedSize();	    
-	    
-//	    Color colIn = Color.YELLOW;
-//	    Color colOut;
-//	    if (category != null) {
-//		colOut = category.getColor();
-//	    } else {
-//		colOut = Color.DARK_GRAY;
-//	    }
 	    
 	    g.setColor(UNFOLDED_BACKGROUND);
 	    g.fillRect(BORDER_THICKNESS, BORDER_THICKNESS, this.getWidth()-BORDER_THICKNESS*2-1, this.getHeight()-BORDER_THICKNESS*2-1);
 	    g.setColor(colOut);
 	    
-	    // Test 2015-07-27
-	    FontMetrics fm = g.getFontMetrics();
-	    int fontHeight = fm.getHeight();
-//	    g.drawString(getName(), 0 + 8, 0+16);
-	    g.drawString(getName(), BORDER_THICKNESS+HMARGIN*2, fontHeight+VMARGIN);
-//	    g.drawString(description, 0 + 2, 0+32);
+	    int fontHeight = g.getFontMetrics().getHeight();
+	    g.drawString(getName(), BORDER_THICKNESS + HMARGIN*2, fontHeight + VMARGIN);
 	    for (int i = 0; i < descriptionSplit.size(); i++) {
 		g.drawString(descriptionSplit.get(i), BORDER_THICKNESS + HMARGIN, fontHeight*(i+2)+VMARGIN);
 	    }
 	    
-//	    Border selectedBorder = BorderFactory.createLineBorder(Color.GRAY, 1);
-//	    Border unselectedBorder = BorderFactory.createEmptyBorder();
 	    if (this.selected) {
 		this.setBorder(Place.selectedBorder);
 	    } else {
@@ -162,48 +131,7 @@ public class DescribedPlace extends Place {
 	    }
 	}
     }
-    
-//    protected void paintComponent(Graphics g) {
-//	System.out.print("c1 ");
-//	if (this.folded) {
-//	    System.out.print("c1a ");
-//	    super.paintComponent(g);
-//	} else {
-//	    System.out.print("c1b ");
-//	    this.setUnfoldedSize();
-//	    Color colIn;
-//	    Color colOut;
-//	    if (category != null) {
-//		colOut = category.getColor();
-//	    } else {
-//		colOut = Color.DARK_GRAY;
-//	    }
-////	    int newAlpha = (int) (colOut.getAlpha()*alphaRel);
-////	    colIn = new Color(colOut.getRed(), colOut.getGreen(), colOut.getBlue(), newAlpha);
-//	    colIn = new Color(255, 255, 0, 160);
-//	    int x0 = this.getX();
-//	    int y0 = this.getY();
-//	    int wi = this.getWidth();
-//	    int hi = this.getHeight();
-//	    g.setColor(colIn);
-//	    g.fillRect(x0+2, y0+2, wi-4, hi-4);
-//	    g.setColor(colOut);
-//	    g.drawString(getName(), x0 + 8, y0+16);
-//	    g.drawString(description, x0 + 2, y0+32);
-//	    System.out.print("c2 ");
-//	    // Paint a border if this place is selected
-//	    Border selectedBorder = BorderFactory.createLineBorder(Color.GRAY, 1);
-//	    Border unselectedBorder = BorderFactory.createEmptyBorder();
-//	    if (this.selected) {
-//		System.out.print("c3a ");
-//		this.setBorder(selectedBorder);
-//	    } else {
-//		System.out.print("c3b ");
-//		this.setBorder(unselectedBorder);
-//	    }
-//	}
-//    }
-    
+
     public String getDescription() {
 	return this.description;
     }
@@ -262,34 +190,11 @@ public class DescribedPlace extends Place {
 
     @Override
     public String toString() {
-	// TODO
-	String ret = super.toString();
-	ret += "\n" + description + "\n";
+	String ret = "Described: " + name + " " + position.toString();
+	ret += " " + (category != null ? category.toString() : "Uncategorized");
+	ret += folded ? " folded" : " unfolded";
+	ret += selected ? " selected" : "";
+	ret += isVisible() ? " visible" : "";
 	return ret;
     }
-    
-//  @Override
-//  public boolean equals(Object other) {
-//	if (other == null)
-//	    return false;
-//	if (!(other instanceof DescribedPlace)) {
-//	    return false;
-//	} else {
-//	    DescribedPlace otherplace = (DescribedPlace) other;
-//	    boolean ret1 = name.equalsIgnoreCase(otherplace.getName()) 
-//		    && position.equals(otherplace.getPosition())
-//		    && description.equalsIgnoreCase(otherplace.getDescription());
-//	    boolean ret2;
-//	    if (this.category == null && otherplace.getCategory() == null) {
-//		ret2 = true;
-//	    } else if ((this.category == null && otherplace.getCategory() != null) ||
-//		    (this.category != null && otherplace.getCategory() == null)) {
-//		ret2 = false;
-//	    } else {
-//		ret2 = this.category.equals(otherplace.getCategory());
-//	    }
-//	    return ret1 && ret2;
-//	}
-//  }
-    
 }

@@ -27,10 +27,8 @@ import java.io.ObjectOutputStream;
 //import java.io.OutputStream;
 import java.io.Serializable;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashMap;
-
-
-
 
 import java.util.HashSet;
 import java.util.Iterator;
@@ -45,7 +43,6 @@ public class MapPanel extends JPanel implements Serializable {
     
     private static final long serialVersionUID = 2L;
 
-//    private ImageIcon mapImage;
     // 2015-05-14 Changed from Image to BufferedImage
     private BufferedImage mapImage;
     private boolean modified;
@@ -54,7 +51,6 @@ public class MapPanel extends JPanel implements Serializable {
     private HashMap<String, List<Place>> placesByName;
 
     private ArrayList<PlaceCategory> categories;
-    //private HashMap<String, PlaceCategory> categories;
     
     private HashSet<Place> selectedPlaces;
     
@@ -72,7 +68,6 @@ public class MapPanel extends JPanel implements Serializable {
     public MapPanel(BufferedImage newMapImage) {
 	this.setLayout(null);
 	mapImage = newMapImage;
-//	if (mapImage.getIconWidth() < 0)
 	if (mapImage.getWidth(this) < 0)
 	    throw new IllegalArgumentException("Can't open the image file!");
 	modified = false;
@@ -81,9 +76,7 @@ public class MapPanel extends JPanel implements Serializable {
 	categories = new ArrayList<PlaceCategory>();
 	selectedPlaces = new HashSet<Place>();
 	// set preferredSize to make the panel resize itself
-//	setPreferredSize(new Dimension(mapImage.getIconWidth(), mapImage.getIconHeight()));
 	setPreferredSize(new Dimension(mapImage.getWidth(this), mapImage.getHeight(this)));
-//	setMaximumSize(this.getPreferredSize());
     }
 
     public MapPanel(File file) throws ClassNotFoundException, FileNotFoundException, IOException {
@@ -95,26 +88,10 @@ public class MapPanel extends JPanel implements Serializable {
     protected void paintComponent(Graphics g){
 	super.paintComponent(g);
 	if (mapImage != null) {
-//	    setSize(new Dimension(mapImage.getIconWidth(), mapImage.getIconHeight()));
 	    setSize(new Dimension(mapImage.getWidth(this), mapImage.getHeight(this)));
-//	    g.drawImage(mapImage.getImage(), 0, 0, getWidth(), getHeight(), this);
-	    // getX(), getY(), getWidth(), getHeight()
 	    g.drawImage(mapImage, 0, 0, getWidth(), getHeight(), this);
         }
     }
-    
-    /*
-     * test
-     * unnecessary after setting preferred size in the constructor
-     */
-//    @Override
-//    public Dimension getPreferredSize() {
-//	Dimension d = new Dimension(super.getPreferredSize());
-//	if (imageMap != null) {
-//	    d.setSize(imageMap.getIconWidth(), imageMap.getIconHeight());
-//        }
-//	return d;
-//    }
     
     public boolean hasMapImage() {
 	if (mapImage != null)
@@ -131,27 +108,9 @@ public class MapPanel extends JPanel implements Serializable {
 	modified = state;
     }
 
-//    public Place addPlace(PlacePosition pos, Place place) {
-//	Place ret = positionedPlaces.putIfAbsent(pos, place);
-//	if (ret == null) {
-//	    modified = true;
-//	}
-//	return ret;
-//    }
-//    
-//    public void addPlace(Place place) {
-//	positionedPlaces.put(place.getPosition(), place);
-//	if (namedPlaces.containsKey(place.getName())) {
-//	    namedPlaces.get(place.getName()).add(place);
-//	} else {
-//	    List<Place> l = new ArrayList<Place>();
-//	    l.add(place);
-//	    namedPlaces.put(place.getName(), l);
-//	}
-//	addPlace(place.getPosition(), place);
-//	modified = true;
-//    }
-//    
+    public void addPlace(Place place) {
+	// TODO
+    }
     
     public void addPlace(PlacePosition pos, String name, Place place) {
 	// TODO Ensure that no duplicate positions are added
@@ -166,28 +125,55 @@ public class MapPanel extends JPanel implements Serializable {
 	modified = true;
 	this.add(place);
     }
+    
+    public void removePlace(Place pl) {
+	String name = pl.getName();
+	PlacePosition pos = pl.getPosition();
+	List<Place> li = placesByName.get(name);
+	Place first = placesByPosition.remove(pos);
+	boolean second = li.remove(pl);
+	String liststate = "non-empty ";
+	if (li.isEmpty()) {
+	    placesByName.remove(name);
+	    liststate = "empty ";
+	}
+	boolean third = selectedPlaces.remove(pl);
+	this.remove(pl);
+	modified = true;
+	System.out.println(first + " " + second + " " + liststate + third);
+    }
 
     public Place removePlace(PlacePosition pos) {
 	// TODO
 	Place ret = placesByPosition.remove(pos);
-	if (ret != null) {
-	    
+	if (ret != null) {	    
 	    modified = true;
 	}
 	return ret;
     }
 
-//    public PlaceCategory addCategory(String name, PlaceCategory category) {
-//	PlaceCategory ret = categories.putIfAbsent(name, category);
-//	if (ret == null) {
-//	    modified = true;
-//	}
-//	return ret;
-//    }
-    
-//    public PlaceCategory addCategory(PlaceCategory category) {
-//	return addCategory(category.getName(), category);
-//    }
+    public void removeSelected() {
+	Iterator<Place> iter = selectedPlaces.iterator();
+	while (iter.hasNext()) {
+	    Place p = iter.next();
+	    String name = p.getName();
+	    PlacePosition pos = p.getPosition();
+	    List<Place> li = placesByName.get(name);
+	    Place first = placesByPosition.remove(pos);
+	    boolean second = li.remove(p);
+	    String liststate = "non-empty;";
+	    if (li.isEmpty()) {
+		placesByName.remove(name);
+		liststate = "empty;";
+	    }
+	    this.remove(p);
+	    modified = true;
+	    System.out.println(first + " " + second + " " + liststate);
+	}
+	selectedPlaces.clear();
+	revalidate();
+    }
+
     
     public boolean addCategory(PlaceCategory newcat) {
 	boolean ret = categories.add(newcat);
@@ -196,12 +182,9 @@ public class MapPanel extends JPanel implements Serializable {
 	}
 	return ret;
     }
-
-//    public PlaceCategory removeCategory(String name) {
-//	return categories.remove(name);
-//    }
     
-    public boolean remove(PlaceCategory cat) {
+    public boolean removeCategory(PlaceCategory cat) {
+	// TODO
 	boolean ret = categories.remove(cat);
 	if (ret) {
 	    modified = true;
@@ -219,13 +202,6 @@ public class MapPanel extends JPanel implements Serializable {
 	return null;
     }
     
-
-    /**
-     * @param positionedPlaces the positionedPlaces to set
-     */
-//    public void setPlaces(HashMap<PlacePosition, Place> positionedPlaces) {
-//        this.places = positionedPlaces;
-//    }
 
     /**
      * @return the categories
@@ -257,14 +233,19 @@ public class MapPanel extends JPanel implements Serializable {
 	ArrayList<Place> ret;
 	if (placesByName.containsKey(name)) {
 	    ret = (ArrayList<Place>) placesByName.get(name);
-//	    return ret;
 	} else {
 	    ret = new ArrayList<Place>();
-//	    return null;
 	}
 	return ret;
     }
-      
+
+    /**
+     * @return the selectedPlaces
+     */
+    public Collection<Place> getSelectedPlaces() {
+        return this.selectedPlaces;
+    }
+
     public void setSelectedPlace(Place place, boolean sel) {
 	place.setSelected(sel);
 	if (sel) {
@@ -275,15 +256,16 @@ public class MapPanel extends JPanel implements Serializable {
 	}
 	modified = true;
     }
-
-    public void setSelectedPlaces(List<Place> placelist) {
-	System.out.println("setSelectedPlaces 1: " + selectedPlaces.toString());
+    
+    /**
+     * @param placelist the selectedPlaces to set
+     */
+    public void setSelectedPlaces(Collection<Place> placelist) {
 	Iterator<Place> iter;
 	if (!selectedPlaces.isEmpty()) {
 	    iter = selectedPlaces.iterator();
 	    while (iter.hasNext()) {
 		Place p = iter.next();
-		System.out.println("setSelectedPlaces 2: " + p);
 		p.setSelected(false);
 	    }
 	    selectedPlaces.clear();
@@ -292,14 +274,10 @@ public class MapPanel extends JPanel implements Serializable {
 	    iter = placelist.iterator();
 	    while (iter.hasNext()) {
 		Place p = iter.next();
-		System.out.println("setSelectedPlaces 3: " + p);
 		p.setSelected(true);
 		selectedPlaces.add(p);
 	    }
 	}
-//	for (Place place : placelist) {
-//	    place.setSelected(true);
-//	}
 	modified = true;
     }
     
@@ -398,10 +376,7 @@ public class MapPanel extends JPanel implements Serializable {
 	for (Place p : placesByPosition.values()) {
 	    this.add(p);
 	}
-//	Iterator<Place> iter = selectedPlaces.iterator();
-//	while (iter.hasNext()) {
-//	    iter.next().setSelected(true);
-//	}
+
 	// Set modified to false
 	this.modified = false;
 	setPreferredSize(new Dimension(mapImage.getWidth(this), mapImage.getHeight(this)));
