@@ -41,7 +41,7 @@ public abstract class Place extends JComponent implements Serializable {
     
     protected Color colOut, colIn;
     
-    protected static Border selectedBorder = BorderFactory.createLineBorder(Color.GRAY, BORDER_THICKNESS);
+    protected static Border selectedBorder = BorderFactory.createLineBorder(Color.RED, BORDER_THICKNESS);
     protected static Border unselectedBorder = BorderFactory.createEmptyBorder();
 
     /**
@@ -136,11 +136,11 @@ public abstract class Place extends JComponent implements Serializable {
 	g.setColor(Color.BLACK);
 	g.drawPolygon(xPoints, yPoints, 3);
 
-	if (this.selected) {
-	    this.setBorder(Place.selectedBorder);
-	} else {
-	    this.setBorder(Place.unselectedBorder);
-	}
+//	if (this.selected) {
+//	    this.setBorder(Place.selectedBorder);
+//	} else {
+//	    this.setBorder(Place.unselectedBorder);
+//	}
     }
   
     public String getName() {
@@ -157,6 +157,14 @@ public abstract class Place extends JComponent implements Serializable {
 
     public PlaceCategory getCategory() {
 	return category;
+    }
+    
+    public boolean isHidden() {
+	return this.isVisible() ? true : false; 
+    }
+    
+    public void setHidden(boolean val) {
+	this.setVisible(!val);
     }
 
     public boolean isFolded() {
@@ -177,6 +185,11 @@ public abstract class Place extends JComponent implements Serializable {
 
     public void setSelected(boolean val) {
 	this.selected = val;
+	if (val) {
+	    this.setBorder(Place.selectedBorder);
+	} else {
+	    this.setBorder(Place.unselectedBorder);
+	}
     }
 
     @Override

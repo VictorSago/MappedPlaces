@@ -22,6 +22,8 @@ import inlupp2.places.*;
 import javax.imageio.ImageIO;
 import javax.swing.*;
 import javax.swing.border.EtchedBorder;
+import javax.swing.event.ListSelectionEvent;
+import javax.swing.event.ListSelectionListener;
 import javax.swing.filechooser.*;
 
 public class MappedPlaces extends JFrame {
@@ -30,13 +32,13 @@ public class MappedPlaces extends JFrame {
     
 //    static Locale 			currentLocale 	= new Locale("sv", "SE");	//$NON-NLS-1$ //$NON-NLS-2$
     static Locale			currentLocale 	= new Locale("en", "GB");	//$NON-NLS-1$ //$NON-NLS-2$
-    public static ResourceBundle 	msgStrings 	= ResourceBundle.getBundle("inlupp2.resources.messages", currentLocale);	//$NON-NLS-1$ //$NON-NLS-2$
+    public static ResourceBundle 	msgStrings 	= ResourceBundle.getBundle("inlupp2.resources.messages", currentLocale); //$NON-NLS-1$ //$NON-NLS-2$
 
-    JFileChooser 	jfc 	= new JFileChooser(".");				//$NON-NLS-1$
-    JColorChooser 	jcc	= new JColorChooser(Color.BLACK);
+    private JFileChooser 	jfc 	= new JFileChooser(".");			//$NON-NLS-1$
+    private JColorChooser 	jcc	= new JColorChooser(Color.BLACK);
     
     // Name of the current file
-    String docfile = "";	//$NON-NLS-1$
+    private String docfile = "";							//$NON-NLS-1$
 
     private JTextField 	tfSearch 	= new JTextField(25);
     private JPanel 	pnlTopPane 	= new JPanel();
@@ -54,37 +56,65 @@ public class MappedPlaces extends JFrame {
 	    		miSaveAs 	= new JMenuItem(msgStrings.getString("miSaveAs")); 		//$NON-NLS-1$
     
     // Buttons
-    JButton btnSearch 	= new JButton(msgStrings.getString("btnSearch")), 				//$NON-NLS-1$
-	    btnHide 	= new JButton(msgStrings.getString("btnHidePlaces")), 				//$NON-NLS-1$
-	    btnDel 	= new JButton(msgStrings.getString("btnDelPlaces")), 				//$NON-NLS-1$
-	    btnWhat 	= new JButton(msgStrings.getString("btnWhatHere")), 				//$NON-NLS-1$
-	    btnCatHide 	= new JButton(msgStrings.getString("btnCatHide")), 				//$NON-NLS-1$
-	    btnCatNew 	= new JButton(msgStrings.getString("btnCatNew")), 				//$NON-NLS-1$
-	    btnCatDel 	= new JButton(msgStrings.getString("btnCatDel")); 				//$NON-NLS-1$
+//    private JButton 	btnSearch 	= new JButton(msgStrings.getString("btnSearch")), 		//$NON-NLS-1$
+//	    		btnHide 	= new JButton(msgStrings.getString("btnHidePlaces")),		//$NON-NLS-1$
+//	    		btnDel 		= new JButton(msgStrings.getString("btnDelPlaces")), 		//$NON-NLS-1$
+//	    		btnWhat 	= new JButton(msgStrings.getString("btnWhatHere")), 		//$NON-NLS-1$
+//	    		btnCatHide 	= new JButton(msgStrings.getString("btnCatHide")), 		//$NON-NLS-1$
+//	    		btnCatNew 	= new JButton(msgStrings.getString("btnCatNew")), 		//$NON-NLS-1$
+//	    		btnCatDel 	= new JButton(msgStrings.getString("btnCatDel")); 		//$NON-NLS-1$
+    
+    private ArrayList<JButton> 		buttonList 	= new ArrayList<>();
+    private ArrayList<ActionListener> 	btnListenerList = new ArrayList<>();
 
     // Listeners
     private CreatePlaceListener mAdapt 		= new CreatePlaceListener();
     private PlaceMouseListener 	pAdapt 		= new PlaceMouseListener();
-    private SearchListener 	searchlistener 	= new SearchListener();
+//    private SearchListener 	searchlistener 	= new SearchListener();
 
     /**
      * @param title
      * @throws HeadlessException
      */
     public MappedPlaces(String title) throws HeadlessException {
+	
 	super(title);
 	
 	// Menu Bar
-	JMenuBar 	mymenubar 	= new JMenuBar();
-	JMenu 		fileMenu 	= new JMenu(msgStrings.getString("menuFile")); 			//$NON-NLS-1$
-	JMenuItem 	miNew 		= new JMenuItem(msgStrings.getString("miNewMap")), 		//$NON-NLS-1$
-			miOpen 		= new JMenuItem(msgStrings.getString("miOpen")), 		//$NON-NLS-1$
-			miExit 		= new JMenuItem(msgStrings.getString("miExit")); 		//$NON-NLS-1$
+	JMenuBar  mymenubar 	= new JMenuBar();
+	JMenu 	  fileMenu	= new JMenu(msgStrings.getString("menuFile")); 			//$NON-NLS-1$
+	JMenuItem miNew 	= new JMenuItem(msgStrings.getString("miNewMap")), 		//$NON-NLS-1$
+		  miOpen 	= new JMenuItem(msgStrings.getString("miOpen")), 		//$NON-NLS-1$
+		  miExit 	= new JMenuItem(msgStrings.getString("miExit")); 		//$NON-NLS-1$
+	
+	SearchListener 	searchlistener 	= new SearchListener();
+	ExitListener 	exLis 		= new ExitListener();
+	SaveListener 	saveLis 	= new SaveListener();
+	
+	JButton 	btnSearch 	= new JButton(msgStrings.getString("btnSearch")), 		//$NON-NLS-1$
+    		btnHide 	= new JButton(msgStrings.getString("btnHidePlaces")),		//$NON-NLS-1$
+    		btnDel 		= new JButton(msgStrings.getString("btnDelPlaces")), 		//$NON-NLS-1$
+    		btnWhat 	= new JButton(msgStrings.getString("btnWhatHere")), 		//$NON-NLS-1$
+    		btnCatHide 	= new JButton(msgStrings.getString("btnCatHide")), 		//$NON-NLS-1$
+    		btnCatNew 	= new JButton(msgStrings.getString("btnCatNew")), 		//$NON-NLS-1$
+    		btnCatDel 	= new JButton(msgStrings.getString("btnCatDel")); 		//$NON-NLS-1$
+	
+	buttonList.add(btnSearch);
+	buttonList.add(btnHide);
+	buttonList.add(btnDel);
+	buttonList.add(btnWhat);
+	buttonList.add(btnCatHide);
+	buttonList.add(btnCatNew);
+	buttonList.add(btnCatDel);
+	
+	btnListenerList.add(searchlistener);
+	btnListenerList.add(new HidePlacesListener());
+	btnListenerList.add(new DeletePlacesListener());
+	btnListenerList.add(new WhatHereListener());
+	btnListenerList.add(new HideCategoryListener());
+	btnListenerList.add(new NewCategoryListener());
+	btnListenerList.add(new DeleteCategoryListener());		
 
-	
-	ExitListener exLis 	= new ExitListener();
-	SaveListener saveLis 	= new SaveListener();
-	
 	setLayout(new BorderLayout(2, 2));
 	
 	// Create main menu bar and add menu items
@@ -150,10 +180,11 @@ public class MappedPlaces extends JFrame {
 	JScrollPane spCatList = new JScrollPane(lstCategories, 
 						JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED, 
 						JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED);
-	Dimension dim = lstCategories.getPreferredSize();
+//	Dimension dim = lstCategories.getPreferredSize();
 	lstCategories.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
 	lstCategories.setCellRenderer(new CategoryListRenderer());
-	dim.width = 200;
+	lstCategories.addListSelectionListener(new CategorySelectionListener());
+//	dim.width = 200;
 	spCatList.setPreferredSize(new Dimension(120, 140));
 	pnlEastPane.add(spCatList);
 	pnlEastPane.add(Box.createRigidArea(vSpace));
@@ -168,17 +199,23 @@ public class MappedPlaces extends JFrame {
 	
 	// Add Listeners to buttons and other visual elements
 	cbxPlaceTypes.addActionListener(new NewPlaceListener());
-	tfSearch.addFocusListener(new SearchFieldFocusListener());
-	
+	tfSearch.addFocusListener(new SearchFieldFocusListener());	
 	tfSearch.addActionListener(searchlistener);
-	btnSearch.addActionListener(searchlistener);
-	btnSearch.setEnabled(false);
-	btnHide.addActionListener(new HidePlacesListener());
-	btnDel.addActionListener(new DeletePlacesListener());
-	btnWhat.addActionListener(new WhatHereListener());
-	btnCatHide.addActionListener(new HideCategoryListener());
-	btnCatNew.addActionListener(new NewCategoryListener());
-	btnCatDel.addActionListener(new DeleteCategoryListener());
+	disableButtons();
+//	btnSearch.addActionListener(searchlistener);
+//	btnSearch.setEnabled(false);
+//	btnHide.addActionListener(new HidePlacesListener());
+//	btnHide.setEnabled(false);
+//	btnDel.addActionListener(new DeletePlacesListener());
+//	btnDel.setEnabled(false);
+//	btnWhat.addActionListener(new WhatHereListener());
+//	btnWhat.setEnabled(false);
+//	btnCatHide.addActionListener(new HideCategoryListener());
+//	btnCatHide.setEnabled(false);
+//	btnCatNew.addActionListener(new NewCategoryListener());
+//	btnCatNew.setEnabled(false);
+//	btnCatDel.addActionListener(new DeleteCategoryListener());
+//	btnCatDel.setEnabled(false);
 
 	
 	pnlSouthPane.setLayout(new BoxLayout(pnlSouthPane, BoxLayout.X_AXIS));
@@ -193,6 +230,18 @@ public class MappedPlaces extends JFrame {
 	setMinimumSize(new Dimension(980, 300));
 	pack();
 	setVisible(true);
+    }
+    
+    private void enableButtons() {
+	for(int i = 0; i < buttonList.size(); i++) {
+	    buttonList.get(i).addActionListener(btnListenerList.get(i));
+	}
+    }
+    
+    private void disableButtons() {
+	for(int i = 0; i < buttonList.size(); i++) {
+	    buttonList.get(i).removeActionListener(btnListenerList.get(i));
+	}
     }
 
     /**
@@ -257,16 +306,17 @@ public class MappedPlaces extends JFrame {
         	System.err.println(e.getMessage());
 	        e.printStackTrace();
             }
-	    docfile = imgfile.getAbsolutePath();
+	    docfile = imgfile.getAbsolutePath();	    
+	    lblStatus.setText(msgStrings.getString("msgStatusMapLoaded") + docfile + "\""); 		//$NON-NLS-1$
 	    docfile = docfile.substring(0, docfile.lastIndexOf(".")) + ".kart";
 	    
-	    btnSearch.setEnabled(true);
-	    
-	    lblStatus.setText(msgStrings.getString("msgStatusMapLoaded") + docfile + "\""); 		//$NON-NLS-1$
-	    Dimension t = pnlTopPane.getPreferredSize();
-	    Dimension e = pnlEastPane.getPreferredSize();
-	    Dimension c = pnlMainPane.getPreferredSize();
-	    setMaximumSize(new Dimension(c.width + e.width, t.height + c.height));
+	    enableButtons();
+//	    btnSearch.setEnabled(true);
+//	    btnHide.setEnabled(true);
+//	    Dimension t = pnlTopPane.getPreferredSize();
+//	    Dimension e = pnlEastPane.getPreferredSize();
+//	    Dimension c = pnlMainPane.getPreferredSize();
+//	    setMaximumSize(new Dimension(c.width + e.width, t.height + c.height));
 	    pack();
 	    validate();
 	    repaint();
@@ -330,18 +380,19 @@ public class MappedPlaces extends JFrame {
 		miSave.setEnabled(true);
 		miSaveAs.setEnabled(true);
 	    }
-	    if (!btnSearch.isEnabled()) {
-		btnSearch.setEnabled(true);
-	    }
+//	    if (!btnSearch.isEnabled()) {
+//		btnSearch.setEnabled(true);
+//	    }
 	    lblStatus.setText(msgStrings.getString("msgStatusOpened") + 
 		    docfile.substring(docfile.lastIndexOf(File.separator)+1) + 
 		    msgStrings.getString("msgStatusAt") + 
 		    docfile.substring(0, docfile.lastIndexOf(File.separator) + 1) + "\"");
-	    Dimension t = pnlTopPane.getPreferredSize();
-	    Dimension e = pnlEastPane.getPreferredSize();
-	    Dimension c = pnlMainPane.getPreferredSize();
-	    Dimension s = pnlSouthPane.getPreferredSize();
-	    setMaximumSize(new Dimension(c.width + e.width, t.height + c.height + s.height));
+	    enableButtons();
+//	    Dimension t = pnlTopPane.getPreferredSize();
+//	    Dimension e = pnlEastPane.getPreferredSize();
+//	    Dimension c = pnlMainPane.getPreferredSize();
+//	    Dimension s = pnlSouthPane.getPreferredSize();
+//	    setMaximumSize(new Dimension(c.width + e.width, t.height + c.height + s.height));
 	    pack();
 	    validate();
 	    repaint();
@@ -545,10 +596,10 @@ public class MappedPlaces extends JFrame {
 		miSaveAs.setEnabled(true);
 	    }
 	    
-	    pnlMainPane.revalidate();
-	    pnlMainPane.repaint();
 	    pnlMainPane.removeMouseListener(mAdapt);
 	    pnlMainPane.setCursor(Cursor.getDefaultCursor());
+	    pnlMainPane.revalidate();
+	    pnlMainPane.repaint();
 	}
     }
 
@@ -586,7 +637,6 @@ public class MappedPlaces extends JFrame {
 	 */
 	@Override
 	public void actionPerformed(ActionEvent e) {
-	    // TODO Auto-generated method stub
 	    String name = tfSearch.getText();
 	    	    
 	    if(!pnlMainPane.hasMapImage()) {
@@ -597,15 +647,18 @@ public class MappedPlaces extends JFrame {
 		return;
 	    }
 	    
-	    lblStatus.setText("Searching: " + name);
+	    String status = msgStrings.getString("msgStatusSearching") + name;			//$NON-NLS-1$
+//	    lblStatus.setText("Searching: " + name);
 
 	    ArrayList<Place> list = new ArrayList<Place>(pnlMainPane.getPlacesByName(name));
-	    if(!list.isEmpty()) {
-		pnlMainPane.setSelectedPlaces(list);
+	    pnlMainPane.setSelectedPlaces(list);
+	    if(list.isEmpty()) {
+		status += " ... " + msgStrings.getString("msgStatusNoSuchPlaces");		//$NON-NLS-1$ //$NON-NLS-2$
 	    } else {
-		pnlMainPane.setSelectedPlaces(list);
-		lblStatus.setText(name + ": " + msgStrings.getString("msgStatusNoSuchPlaces"));	//$NON-NLS-1$ //$NON-NLS-2$
-	    }	    
+		status += " ... " + msgStrings.getString("msgStatusFound") 			//$NON-NLS-1$ //$NON-NLS-2$
+			+ " " + list.size() + ".";						//$NON-NLS-1$ //$NON-NLS-2$
+	    }
+	    lblStatus.setText(status);
 	    pnlMainPane.repaint();
 	}
     }
@@ -621,9 +674,10 @@ public class MappedPlaces extends JFrame {
 	 */
 	@Override
 	public void actionPerformed(ActionEvent e) {
-	    // TODO Auto-generated method stub
+	    Collection<Place> places = pnlMainPane.getSelectedPlaces();
+	    pnlMainPane.hidePlaces(places);
+	    pnlMainPane.repaint();
 	}
-
     }
 
     /**
@@ -637,11 +691,9 @@ public class MappedPlaces extends JFrame {
 	 */
 	@Override
 	public void actionPerformed(ActionEvent e) {
-	    // TODO Auto-generated method stub
-//	    Collection<Place> places = pnlMainPane.getSelectedPlaces();
-//	    pnlMainPane.removePlaces(places);
-//	    pnlMainPane.repaint();
-	    pnlMainPane.removeSelected();
+	    Collection<Place> places = pnlMainPane.getSelectedPlaces();
+	    pnlMainPane.removePlaces(places);
+//	    pnlMainPane.removeSelected();
 //	    pnlMainPane.revalidate();
 	    pnlMainPane.repaint();
 	}
@@ -660,9 +712,29 @@ public class MappedPlaces extends JFrame {
 	@Override
 	public void actionPerformed(ActionEvent e) {
 	    // TODO Auto-generated method stub
-
 	}
+    }
+    
+    /**
+     * @author zeron
+     *
+     */
+    class CategorySelectionListener implements ListSelectionListener {
 
+	/* (non-Javadoc)
+	 * @see javax.swing.event.ListSelectionListener#valueChanged(javax.swing.event.ListSelectionEvent)
+	 */
+	@Override
+	public void valueChanged(ListSelectionEvent e) {
+	    // TODO Auto-generated method stub
+	    PlaceCategory selectedCategory = lstCategories.getSelectedValue();
+	    System.out.println("Selected category: " + selectedCategory == null ? "null" : selectedCategory);
+	    if (selectedCategory != null) {
+		Collection<Place> places = pnlMainPane.getPlacesByCategory(selectedCategory);
+		pnlMainPane.setSelectedPlaces(places);
+		pnlMainPane.repaint();
+	    }
+	}
     }
 
     /**
@@ -677,9 +749,13 @@ public class MappedPlaces extends JFrame {
 	@Override
 	public void actionPerformed(ActionEvent e) {
 	    // TODO Auto-generated method stub
-
+	    PlaceCategory selectedCategory = lstCategories.getSelectedValue();
+	    if (selectedCategory != null) {
+		Collection<Place> places = pnlMainPane.getPlacesByCategory(selectedCategory);
+		pnlMainPane.hidePlaces(places);
+		pnlMainPane.repaint();
+	    }
 	}
-
     }
 
 
@@ -717,8 +793,8 @@ public class MappedPlaces extends JFrame {
 		String catName = tfCatName.getText();
 		if (catName.equals("")) { 								//$NON-NLS-1$
 		    JOptionPane.showMessageDialog(MappedPlaces.this, 
-			    			msgStrings.getString("msgNewCatErr"),  //$NON-NLS-1$
-			    			msgStrings.getString("dlgCatErrTitle"), JOptionPane.ERROR_MESSAGE); //$NON-NLS-1$
+			    	msgStrings.getString("msgNewCatErr"),  					//$NON-NLS-1$
+			    	msgStrings.getString("dlgCatErrTitle"), JOptionPane.ERROR_MESSAGE); 	//$NON-NLS-1$
 		    return;
 		} else {
 		    Color newCol = jcc.getColor();
@@ -726,8 +802,10 @@ public class MappedPlaces extends JFrame {
 		    lstmod.addElement(newCat);
 		    
 		    if (!pnlMainPane.addCategory(newCat)) {
-			JOptionPane.showMessageDialog(MappedPlaces.this, msgStrings.getString("msgNewCatErr"),	//$NON-NLS-1$
-						msgStrings.getString("msgDlgTitleErr"), JOptionPane.ERROR_MESSAGE); //$NON-NLS-1$
+			JOptionPane.showMessageDialog(MappedPlaces.this, 
+							msgStrings.getString("msgNewCatErr"),		//$NON-NLS-1$
+							msgStrings.getString("msgDlgTitleErr"),		//$NON-NLS-1$ 
+							JOptionPane.ERROR_MESSAGE);
 		    }
 		    lblStatus.setText(msgStrings.getString("msgStatusCategory") + newCat.getName() + 		//$NON-NLS-1$
 			    		msgStrings.getString("msgStatusWithColor") + newCat.getColor() + 	//$NON-NLS-1$
@@ -753,23 +831,33 @@ public class MappedPlaces extends JFrame {
 	@Override
 	public void actionPerformed(ActionEvent e) {
 	    // TODO Auto-generated method stub
-
+	    PlaceCategory selectedCategory = lstCategories.getSelectedValue();
+	    if (selectedCategory != null) {
+		pnlMainPane.removeCategory(selectedCategory);
+		lstmod.removeElement(selectedCategory);
+		pnlMainPane.repaint();
+	    }
 	}
     }
 
+    /**
+     * @author zeron
+     *
+     */
     class PlaceMouseListener extends MouseAdapter {
 	
 	@Override
 	public void mouseClicked(MouseEvent mev) {
-	    System.out.println(mev.getSource());
+	    // TODO Adjust unfolded place position
+//	    System.out.println(mev.getSource());
 	    if (mev.getSource() instanceof Place) {
 		Place p = (Place) mev.getSource();
 		if (mev.getButton() == MouseEvent.BUTTON1) {
 		    if (p.isSelected()) {
-			p.setSelected(false);
+//			p.setSelected(false);
 			pnlMainPane.setSelectedPlace(p, false);
 		    } else {
-			p.setSelected(true);
+//			p.setSelected(true);
 			pnlMainPane.setSelectedPlace(p, true);
 		    }
 		} else if (mev.getButton() == MouseEvent.BUTTON3) {
@@ -821,6 +909,6 @@ public class MappedPlaces extends JFrame {
      */
     public static void main(String[] args) {
 	Locale.setDefault(currentLocale);
-	new MappedPlaces(msgStrings.getString("MainTitle")); //$NON-NLS-1$
+	new MappedPlaces(msgStrings.getString("MainTitle")); 					//$NON-NLS-1$
     }
 }
