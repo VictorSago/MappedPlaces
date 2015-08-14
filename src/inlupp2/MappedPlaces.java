@@ -16,6 +16,7 @@ import java.io.*;
 //import java.nio.file.Path;
 //import java.nio.file.Paths;
 import java.util.*;
+import java.util.List;
 
 import inlupp2.places.*;
 
@@ -28,7 +29,10 @@ import javax.swing.filechooser.*;
 
 public class MappedPlaces extends JFrame {
 
-    private static final long serialVersionUID = 7329740490539533214L;
+    private static final long serialVersionUID = -3402082705878159990L;
+
+    // For "What is here?"-button
+    private static final int lookupRadius = 11;		// Value of 7 makes the area to be examined too small
     
 //    static Locale 			currentLocale 	= new Locale("sv", "SE");	//$NON-NLS-1$ //$NON-NLS-2$
     static Locale			currentLocale 	= new Locale("en", "GB");	//$NON-NLS-1$ //$NON-NLS-2$
@@ -68,7 +72,8 @@ public class MappedPlaces extends JFrame {
     private ArrayList<ActionListener> 	btnListenerList = new ArrayList<>();
 
     // Listeners
-    private CreatePlaceListener mAdapt 		= new CreatePlaceListener();
+    private CreatePlaceListener placeCreator	= new CreatePlaceListener();
+    private QueryListener	whatsHere	= new QueryListener();
     private PlaceMouseListener 	pAdapt 		= new PlaceMouseListener();
 //    private SearchListener 	searchlistener 	= new SearchListener();
 
@@ -91,7 +96,7 @@ public class MappedPlaces extends JFrame {
 	ExitListener 	exLis 		= new ExitListener();
 	SaveListener 	saveLis 	= new SaveListener();
 	
-	JButton 	btnSearch 	= new JButton(msgStrings.getString("btnSearch")), 		//$NON-NLS-1$
+	JButton btnSearch 	= new JButton(msgStrings.getString("btnSearch")), 		//$NON-NLS-1$
     		btnHide 	= new JButton(msgStrings.getString("btnHidePlaces")),		//$NON-NLS-1$
     		btnDel 		= new JButton(msgStrings.getString("btnDelPlaces")), 		//$NON-NLS-1$
     		btnWhat 	= new JButton(msgStrings.getString("btnWhatHere")), 		//$NON-NLS-1$
@@ -459,6 +464,10 @@ public class MappedPlaces extends JFrame {
      * Exits program if document hasn't been modified
      * otherwise asks for confirmation first
      */
+    /**
+     * @author zeron
+     *
+     */
     class ExitListener extends WindowAdapter implements ActionListener {
 	
 	private void exitProgram(){
@@ -486,6 +495,10 @@ public class MappedPlaces extends JFrame {
      * Listener for creating new place markers on the map
      * Changes the cursor and prepares for creation of a new place marker
      */
+    /**
+     * @author zeron
+     *
+     */
     public class NewPlaceListener implements ActionListener {
 	/* (non-Javadoc)
 	 * @see java.awt.event.ActionListener#actionPerformed(java.awt.event.ActionEvent)
@@ -493,9 +506,9 @@ public class MappedPlaces extends JFrame {
 	@Override
 	public void actionPerformed(ActionEvent e) {
 	    if (pnlMainPane.hasMapImage()) {
-		pnlMainPane.addMouseListener(mAdapt);
+		pnlMainPane.addMouseListener(placeCreator);
 		pnlMainPane.setCursor(Cursor.getPredefinedCursor(Cursor.CROSSHAIR_CURSOR));
-		lblStatus.setText(msgStrings.getString("msgStatusCreatePlace"));
+		lblStatus.setText(msgStrings.getString("msgStatusCreatePlace"));			//$NON-NLS-1$
 	    }
 	}
     }
@@ -504,8 +517,15 @@ public class MappedPlaces extends JFrame {
      * Listener for creating new place markers on the map
      * Creates new place markers and restores normal cursor
      */
+    /**
+     * @author zeron
+     *
+     */
     class CreatePlaceListener extends MouseAdapter {
 	
+	/* (non-Javadoc)
+	 * @see java.awt.event.MouseAdapter#mouseClicked(java.awt.event.MouseEvent)
+	 */
 	@Override
 	public void mouseClicked(MouseEvent mev) {
 	    // determine click position
@@ -528,9 +548,9 @@ public class MappedPlaces extends JFrame {
 	    // create place of chosen type and category
 	    Place newPlace;
 	    if (placeType.equalsIgnoreCase(msgStrings.getString("cbxNamedPlaces"))) { 			//$NON-NLS-1$
-		NamedPlaceAddForm inputFrm = new NamedPlaceAddForm();
-		int dlgResult = JOptionPane.showConfirmDialog(MappedPlaces.this, inputFrm, 
-						msgStrings.getString("strNewNamedPlace"), 		//$NON-NLS-1$
+		PlaceAddForm inputFrm = new NamedPlaceAddForm();
+		String dlgTitle = msgStrings.getString("strNew") + " " + msgStrings.getString("strNamedPlace"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+		int dlgResult = JOptionPane.showConfirmDialog(MappedPlaces.this, inputFrm, dlgTitle,
 						JOptionPane.OK_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE); 
 		if (dlgResult == JOptionPane.OK_OPTION) {
 		    String newPlaceName = inputFrm.getName();
@@ -555,8 +575,8 @@ public class MappedPlaces extends JFrame {
 		}
 	    } else if (placeType.equalsIgnoreCase(msgStrings.getString("cbxDescribedPlaces"))) { 	//$NON-NLS-1$
 		DescribedPlaceAddForm inputFrm = new DescribedPlaceAddForm();
-		int dlgResult = JOptionPane.showConfirmDialog(MappedPlaces.this, inputFrm, 
-						msgStrings.getString("strNewDescribedPlace"), 		//$NON-NLS-1$
+		String dlgTitle = msgStrings.getString("strNew") + " " + msgStrings.getString("strDescPlace"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+		int dlgResult = JOptionPane.showConfirmDialog(MappedPlaces.this, inputFrm, dlgTitle,
 						JOptionPane.OK_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE); 
 		if (dlgResult == JOptionPane.OK_OPTION) {
 		    String newPlaceName = inputFrm.getName();
@@ -596,7 +616,7 @@ public class MappedPlaces extends JFrame {
 		miSaveAs.setEnabled(true);
 	    }
 	    
-	    pnlMainPane.removeMouseListener(mAdapt);
+	    pnlMainPane.removeMouseListener(placeCreator);
 	    pnlMainPane.setCursor(Cursor.getDefaultCursor());
 	    pnlMainPane.revalidate();
 	    pnlMainPane.repaint();
@@ -712,7 +732,54 @@ public class MappedPlaces extends JFrame {
 	@Override
 	public void actionPerformed(ActionEvent e) {
 	    // TODO Auto-generated method stub
+	    if (pnlMainPane.hasMapImage()) {
+		pnlMainPane.addMouseListener(whatsHere);
+		pnlMainPane.setCursor(Cursor.getPredefinedCursor(Cursor.CROSSHAIR_CURSOR));
+		lblStatus.setText(msgStrings.getString("msgStatusWhatIsHere"));			//$NON-NLS-1$
+	    }
 	}
+    }
+    
+    /**
+     * @author zeron
+     *
+     */
+    class QueryListener extends MouseAdapter {
+	/**
+	 * @param mev
+	 */
+	@Override
+	public void mouseClicked(MouseEvent mev) {
+	    // determine click position
+	    int x = mev.getX();
+	    int y = mev.getY();
+	    // Generate an array of coordinates of a 7x7 square centred in the click
+	    List<PlacePosition> coordinates = new ArrayList<PlacePosition>();
+	    for (int i = -lookupRadius/2; i <= lookupRadius/2; i++) {
+		for (int j = -lookupRadius/2; j <= lookupRadius/2; j++) {
+		    coordinates.add(new PlacePosition(x+j, y+i));
+		}
+	    }
+	    // Step through the array
+	    for (PlacePosition pos : coordinates) {
+		// For each pair of coordinates in the array query MapPanel for a place with these coordinates
+		Place place = pnlMainPane.getPlaceByPosition(pos);
+		// If such a place exists make it visible
+		if (place != null) {
+		    place.setVisible(true);
+//		    place.setFolded(false);
+		}
+	    }
+	    System.out.println("\n(" + x + "; " + y + ") -> " + coordinates);
+	    // Remove QueryListener
+	    pnlMainPane.removeMouseListener(whatsHere);
+	    // Set the mouse cursor to default
+	    pnlMainPane.setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
+	    // Revalidate and repaint
+	    pnlMainPane.revalidate();
+	    pnlMainPane.repaint();
+	}
+	
     }
     
     /**
@@ -726,12 +793,14 @@ public class MappedPlaces extends JFrame {
 	 */
 	@Override
 	public void valueChanged(ListSelectionEvent e) {
-	    // TODO Auto-generated method stub
 	    PlaceCategory selectedCategory = lstCategories.getSelectedValue();
-	    System.out.println("Selected category: " + selectedCategory == null ? "null" : selectedCategory);
 	    if (selectedCategory != null) {
+		String statustxt = msgStrings.getString("msgStatusCategory") + selectedCategory + " "	//$NON-NLS-1$ //$NON-NLS-2$
+				+ msgStrings.getString("msgStatusSelected") + ": ";			//$NON-NLS-1$ //$NON-NLS-2$
 		Collection<Place> places = pnlMainPane.getPlacesByCategory(selectedCategory);
+		statustxt += places.size() + " " + msgStrings.getString("msgStatusPlaces");		//$NON-NLS-1$
 		pnlMainPane.setSelectedPlaces(places);
+		lblStatus.setText(statustxt);
 		pnlMainPane.repaint();
 	    }
 	}
@@ -807,9 +876,13 @@ public class MappedPlaces extends JFrame {
 							msgStrings.getString("msgDlgTitleErr"),		//$NON-NLS-1$ 
 							JOptionPane.ERROR_MESSAGE);
 		    }
-		    lblStatus.setText(msgStrings.getString("msgStatusCategory") + newCat.getName() + 		//$NON-NLS-1$
-			    		msgStrings.getString("msgStatusWithColor") + newCat.getColor() + 	//$NON-NLS-1$
-			    		msgStrings.getString("msgStatusCreated"));				//$NON-NLS-1$
+		    lblStatus.setText(msgStrings.getString("msgStatusCategory") + 			//$NON-NLS-1$
+			    		"\"" + newCat.getName() + "\" " +				//$NON-NLS-1$ //$NON-NLS-2$
+			    		msgStrings.getString("msgStatusWithColor") + "(" + 		//$NON-NLS-1$ //$NON-NLS-2$
+			    		newCat.getColor().getRed() + ", " + 				//$NON-NLS-1$
+			    		newCat.getColor().getGreen() + ", " +				//$NON-NLS-1$
+			    		newCat.getColor().getBlue() + ") " +				//$NON-NLS-1$
+			    		msgStrings.getString("msgStatusCreated"));			//$NON-NLS-1$
 		}
 		if (!(miSave.isEnabled() && miSaveAs.isEnabled())) {
 		    miSave.setEnabled(true);
@@ -833,8 +906,15 @@ public class MappedPlaces extends JFrame {
 	    // TODO Auto-generated method stub
 	    PlaceCategory selectedCategory = lstCategories.getSelectedValue();
 	    if (selectedCategory != null) {
-		pnlMainPane.removeCategory(selectedCategory);
+		String statustxt = msgStrings.getString("msgStatusCategory") + selectedCategory + ": ";	//$NON-NLS-1$ //$NON-NLS-2$
+		Collection<Place> places = pnlMainPane.getPlacesByCategory(selectedCategory);
+		statustxt += places.size() + " " + msgStrings.getString("msgStatusPlaces");		//$NON-NLS-1$ //$NON-NLS-2$
+		pnlMainPane.removePlaces(places);
+		boolean rem = pnlMainPane.removeCategory(selectedCategory);
+		statustxt += rem ? (" " + msgStrings.getString("msgStatusRemoved"))			//$NON-NLS-1$ //$NON-NLS-2$
+				 : (" " + msgStrings.getString("msgStatusNotRemoved"));			//$NON-NLS-1$ //$NON-NLS-2$
 		lstmod.removeElement(selectedCategory);
+		lblStatus.setText(statustxt);
 		pnlMainPane.repaint();
 	    }
 	}
@@ -880,7 +960,12 @@ public class MappedPlaces extends JFrame {
 	@Override
 	public void mouseEntered(MouseEvent mev) {
 	    Place p = (Place) mev.getSource();
-	    String statustxt = "Name: " + p.getName();
+	    String statustxt = "";
+	    if (p instanceof NamedPlace)
+		statustxt = "Named Place, ";
+	    else if (p instanceof DescribedPlace)
+		statustxt = "Described Place, ";
+	    statustxt += "Name: " + p.getName();
 	    if (p.hasCategory()) {
 		statustxt += ", Category: " + p.getCategory().getName();
 	    }

@@ -33,7 +33,7 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-//import java.util.Set;
+import java.util.Set;
 
 import javax.imageio.ImageIO;
 //import java.awt.LayoutManager;
@@ -42,22 +42,16 @@ import javax.swing.JPanel;
 
 public class MapPanel extends JPanel implements Serializable {
     
-    /**
-     * 
-     */
-    private static final long serialVersionUID = -4413772578301234701L;
+    private static final long serialVersionUID = 394224287468012096L;
 
     // 2015-05-14 Changed from Image to BufferedImage
     private BufferedImage mapImage;
     private boolean modified;
 
-    private Map<PlacePosition, Place> placesByPosition;
-    private Map<String, List<Place>> placesByName;
-    private Map<PlaceCategory, List<Place>> placesByCategory;
-
-//    private List<PlaceCategory> categories;
-    
-    private HashSet<Place> selectedPlaces;
+    private Map<PlacePosition, Place> 		placesByPosition;
+    private Map<String, List<Place>> 		placesByName;
+    private Map<PlaceCategory, List<Place>> 	placesByCategory;    
+    private Set<Place> 				selectedPlaces;
     
     /**
      * Empty constructor is needed so that the panel can be initialized without an image
@@ -117,7 +111,7 @@ public class MapPanel extends JPanel implements Serializable {
     /**
      * @return all categories as list
      */
-    public List<PlaceCategory> getCategories() {
+    public Collection<PlaceCategory> getCategories() {
 	// Changed on 2015-08-09
 //	return categories;
 	return new ArrayList<>(placesByCategory.keySet());
@@ -178,25 +172,61 @@ public class MapPanel extends JPanel implements Serializable {
 	// TODO
 	// Changed 2015-08-09
 //	boolean ret = categories.remove(cat);
+	boolean mod = false;
+//	System.out.println("Remove Category " + cat);
+//	System.out.println("PlacesByPosition: " + placesByPosition);
+//	System.out.println("PlacesByName: " + placesByName);
+//	System.out.println("PlacesByCategory: " + placesByCategory);
+//	System.out.println("SelectedPlaces: " + selectedPlaces);
+//	System.out.println("Argument: " + cat);
+	
 	if (placesByCategory.containsKey(cat)) {
+//	    System.out.println("\nPlacesByCategory contains key " + cat + ": true.");
 	    List<Place> places = placesByCategory.remove(cat);
+//	    placesByCategory.remove(cat);
+//	    System.out.println("After placesByCategory.remove(cat)");
+//	    System.out.println("PlacesByCategory: " + placesByCategory);
+//	    System.out.println("List of Places " + places + " removed from placesByCategory");
+	    mod = true;
 	    if (places != null) {
+//		System.out.println("places != null...");
+//		mod = true;
+		int i = 0;
 		for (Place p : places) {
+		    System.out.println("\nIteration " + i + ": place p=" + p);
 		    PlacePosition pos = p.getPosition();
 		    String name = p.getName();
+//		    System.out.println("Position: " + pos + " Name: " + name);
 		    placesByPosition.remove(pos);
+//		    System.out.println("After PlacesByPosition.remove(" + pos + "): ");
+//		    System.out.println("PlacesByPosition: " + placesByPosition);
+//		    System.out.println("PlacesByName: " + placesByName);
+//		    System.out.println("PlacesByCategory: " + placesByCategory);
+//		    System.out.println("SelectedPlaces: " + selectedPlaces);
+//		    System.out.println("placesByName.get(name): " + placesByName.get(name)!=null ? placesByName.get(name) : "placesByName.get(name) is Null000");
+
+		    System.out.println("Remove operation from placesByName...1...");
 		    placesByName.get(name).remove(p);
+		    System.out.println("Remove operation from placesByName...2...");
 		    if (placesByName.get(name).isEmpty()) {
+			System.out.println("Remove operation from placesByName...3...");
 			placesByName.remove(name);
+			System.out.println("Remove operation from placesByName...4...");
 		    }
+		    System.out.println("Remove operation from placesByName...5...");
 		    this.remove(p);
+		    System.out.println("Remove operation from placesByName...6...");
+		    i++;
+		    System.out.println("Remove operation from placesByName...7...");
 		}
 	    }
-	    modified = true;
-	} else {
-	    modified = false;
-	}
-	return modified;
+//	    modified = true;
+	} 
+//	else {
+//	    modified = false;
+//	}
+	modified = mod || modified;
+	return mod;
     }
 
     /**
@@ -209,9 +239,9 @@ public class MapPanel extends JPanel implements Serializable {
     /**
      * @return the placesByName Map
      */    
-    public Map<String, List<Place>> getAllPlacesByName() {
-        return placesByName;
-    }
+//    public Map<String, List<Place>> getAllPlacesByName() {
+//        return placesByName;
+//    }
     
     
     /**
@@ -232,10 +262,10 @@ public class MapPanel extends JPanel implements Serializable {
      * @param name Place name
      * @return List of all places with this name or an empty list if no such places exist
      */
-    public List<Place> getPlacesByName(String name) {
-	List<Place> ret;
+    public Collection<Place> getPlacesByName(String name) {
+	Collection<Place> ret;
 	if (placesByName.containsKey(name)) {
-	    ret = placesByName.get(name);
+	    ret = new ArrayList<Place>(placesByName.get(name));
 	} else {
 	    ret = new ArrayList<Place>();
 	}
@@ -246,10 +276,10 @@ public class MapPanel extends JPanel implements Serializable {
      * @param cat PlaceCategory
      * @return List of all places in this category or an empty list if no such places exist
      */
-    public List<Place> getPlacesByCategory(PlaceCategory cat) {
-	List<Place> ret;
+    public Collection<Place> getPlacesByCategory(PlaceCategory cat) {
+	Collection<Place> ret;
 	if (placesByCategory.containsKey(cat)) {
-	    ret = placesByCategory.get(cat);
+	    ret = new ArrayList<Place>(placesByCategory.get(cat));
 	} else {
 	    ret = new ArrayList<Place>();
 	}
@@ -308,7 +338,7 @@ public class MapPanel extends JPanel implements Serializable {
 	boolean third = selectedPlaces.remove(pl);
 	this.remove(pl);
 	modified = true;
-	System.out.println(first + " " + second + " " + liststate + third);
+	System.out.println("placesByPosition.remove(pos): " + first + " " + second + " " + liststate + third);
     }
 
     // TODO Unused
@@ -324,45 +354,98 @@ public class MapPanel extends JPanel implements Serializable {
     /**
      * @param places
      */
-    public void removePlaces(Collection<Place> places) {
-	// TODO
-//	System.out.println("Remove All selected Places");
+//    public void removePlaces(Collection<Place> places) {
+//	// TODO
+//	System.out.println("Remove Collection of Places");
 //	System.out.println("PlacesByPosition: " + placesByPosition);
 //	System.out.println("PlacesByName: " + placesByName);
+//	System.out.println("PlacesByCategory: " + placesByCategory);
 //	System.out.println("SelectedPlaces: " + selectedPlaces);
 //	System.out.println("Argument: " + places);
-	
-//	System.out.println("Removing All from selectedPlaces.");
-	
-//	System.out.println("Removing All from selectedPlaces by iterator.");
+//	
+//	System.out.println("Removing All from collection by iterator.");
+//	Iterator<Place> iter = places.iterator();
+//	while (iter.hasNext()) {
+//	    Place p = iter.next();
+//	    System.out.println("1: p=" + p);
+//	    
+//	    PlacePosition pos = p.getPosition();
+//	    Place first = placesByPosition.remove(pos);
+//	    System.out.println("2: p=" + p);
+//	    
+//	    String name = p.getName();
+//	    List<Place> list1 = placesByName.get(name);
+//	    boolean second = list1.remove(p);
+//	    System.out.println("3: p=" + p);
+//	    String list1state = "non-empty,";
+//	    if (list1.isEmpty()) {
+//		placesByName.remove(name);
+//		list1state = "empty,";
+//	    }	    
+//	    
+//	    PlaceCategory cat = p.getCategory();
+//	    String list2state = "?";
+//	    boolean third = false;	    
+//	    if (cat != null) {
+//		List<Place> list2 = placesByCategory.get(cat);
+//		System.out.println("list2 = placesByCategory.get(" + cat + "): " + list2);
+//		if (list2 != null) {
+//		    third = list2.remove(p);
+//		}
+//		if (list2.isEmpty()) {
+//		    list2state = "category-empty;";
+//		} else {
+//		    list2state = "category-non-empty;";
+//		}
+//	    } else {
+//		list2state = "--category-null-;";
+//	    }
+//
+//	    this.remove(p);
+//	    modified = true;
+//	    System.out.println(first + " ¤# " + second + " ¤# " + list1state + " ¤# " + third + " ¤# " + list2state);
+//	}
+////	System.out.println("PlacesByPosition: " + placesByPosition);
+////	System.out.println("PlacesByName: " + placesByName);
+////	System.out.println("SelectedPlaces: " + selectedPlaces);
+////	System.out.println("Argument: " + places);
+//	boolean fourth = selectedPlaces.removeAll(places);
+//	System.out.println("selectedPlaces.removeAll(places): " + fourth);
+//	revalidate();
+//    }
+    
+    public void removePlaces(Collection<Place> places) {
 	Iterator<Place> iter = places.iterator();
 	while (iter.hasNext()) {
 	    Place p = iter.next();
-	    String name = p.getName();
 	    PlacePosition pos = p.getPosition();
-	    List<Place> li = placesByName.get(name);
-	    Place first = placesByPosition.remove(pos);
-	    boolean second = li.remove(p);
-	    String liststate = "non-empty;";
-	    if (li.isEmpty()) {
-		placesByName.remove(name);
-		liststate = "empty;";
+	    String name = p.getName();
+	    PlaceCategory cat = p.getCategory();
+//	    if (p.hasCategory()) {
+//		cat = p.getCategory();
+//	    }
+	    placesByPosition.remove(pos);
+	    List<Place> list1 = placesByName.get(name);
+	    if (list1 != null) {
+		list1.remove(p);
+		if (list1.isEmpty()) {
+		    placesByName.remove(name);
+		}
+	    }
+	    if (cat != null) {
+		List<Place> list2 = placesByCategory.get(cat);
+		list2.remove(p);
 	    }
 	    this.remove(p);
 	    modified = true;
-	    System.out.println(first + " ¤# " + second + " ¤# " + liststate);
 	}
-//	System.out.println("PlacesByPosition: " + placesByPosition);
-//	System.out.println("PlacesByName: " + placesByName);
-//	System.out.println("SelectedPlaces: " + selectedPlaces);
-//	System.out.println("Argument: " + places);
-	boolean third = selectedPlaces.removeAll(places);
-	System.out.println(third);
+	selectedPlaces.removeAll(places);
 	revalidate();
     }
 
     // TODO Unused
     public void removeSelected() {
+	System.out.println("removeSlected()...");
 	Iterator<Place> iter = selectedPlaces.iterator();
 	while (iter.hasNext()) {
 	    Place p = iter.next();

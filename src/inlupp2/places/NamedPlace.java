@@ -57,10 +57,25 @@ public class NamedPlace extends Place {
     }
     
     protected void unfold() {
-	int wi = BASIC_WIDTH * UNFOLDED_WMULT + BORDER_THICKNESS*2;
+	FontMetrics fm = this.getFontMetrics(getFont());
+	int wi1 = BASIC_WIDTH * UNFOLDED_WMULT + BORDER_THICKNESS*2;
+	int wi2 = fm.stringWidth(name) + BORDER_THICKNESS*2;
+	int wi = Math.max(wi1, wi2);
 	int hi = BASIC_HEIGHT * UNFOLDED_HMULT + BORDER_THICKNESS*2;
-	int x0 = (int) (position.getX() - BASIC_WIDTH/2 - BORDER_THICKNESS);
-	int y0 = (int) (position.getY() - BASIC_HEIGHT - BORDER_THICKNESS);
+	int x0 = position.getX() - BASIC_WIDTH/2 - BORDER_THICKNESS;
+	int y0 = position.getY() - BASIC_HEIGHT - BORDER_THICKNESS;
+	
+	Dimension dim = this.getParent().getSize();
+	if (x0 < 0) {
+	    x0 = 0;
+	} else if (x0 + wi > dim.width) {
+	    x0 = dim.width - wi;
+	}
+	if (y0 < 0) {
+	    y0 = 0;
+	} else if (y0 + hi > dim.height) {
+	    y0 = dim.height - hi;
+	}
 	
 	setBounds(x0, y0, wi, hi);
 	setPreferredSize(new Dimension(wi, hi));

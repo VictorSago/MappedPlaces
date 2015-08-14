@@ -94,16 +94,28 @@ public class DescribedPlace extends Place {
 	int x0 = (int) (position.getX() - BASIC_WIDTH/2 - BORDER_THICKNESS);
 	int y0 = (int) (position.getY() - BASIC_HEIGHT - BORDER_THICKNESS);
 	
-	int width = BASIC_WIDTH * UNFOLDED_WMULT + BORDER_THICKNESS*2;
+	int wi = BASIC_WIDTH * UNFOLDED_WMULT + BORDER_THICKNESS*2;
 	
 	// Test 2015-07-27
 	FontMetrics fm = this.getFontMetrics(getFont());
-	descriptionSplit = new ArrayList<String>(StringUtils.wrap(description, fm, width - BORDER_THICKNESS*2 - HMARGIN*2));
+	descriptionSplit = new ArrayList<String>(StringUtils.wrap(description, fm, wi - BORDER_THICKNESS*2 - HMARGIN*2));
 	
-	int height = fm.getHeight() * (descriptionSplit.size()+1) + BORDER_THICKNESS*2 + VMARGIN*2;
+	int hi = fm.getHeight() * (descriptionSplit.size()+1) + BORDER_THICKNESS*2 + VMARGIN*2;
 	
-	setBounds(x0, y0, width, height);
-	setPreferredSize(new Dimension(width, height));
+	Dimension dim = this.getParent().getSize();
+	if (x0 < 0) {
+	    x0 = 0;
+	} else if (x0 + wi > dim.width) {
+	    x0 = dim.width - wi;
+	}
+	if (y0 < 0) {
+	    y0 = 0;
+	} else if (y0 + hi > dim.height) {
+	    y0 = dim.height - hi;
+	}
+	
+	setBounds(x0, y0, wi, hi);
+	setPreferredSize(new Dimension(wi, hi));
 	
 	validate();
     }

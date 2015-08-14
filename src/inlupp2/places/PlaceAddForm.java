@@ -16,7 +16,7 @@ import javax.swing.JTextField;
  *
  */
 @SuppressWarnings("serial")
-public class PlaceAddForm extends JPanel {
+public abstract class PlaceAddForm extends JPanel {
 
     private JTextField tfPlaceName = new JTextField(12);
 
