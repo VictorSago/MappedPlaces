@@ -1,109 +1,101 @@
 /**
+ * Inlämningsuppgift 2 i PROG2
  * 
- */
-/**
- * @author Victor Sago
+ * 	Mapped Places
  *
+ * @author Victor Sago, <a href="mailto:VictorSago01@gmail.com">VictorSago01@gmail.com</a>
  */
 
 package inlupp2;
 
+import inlupp2.places.*;
 import java.awt.*;
 import java.awt.event.*;
 import java.awt.image.BufferedImage;
 import java.awt.HeadlessException;
 import java.io.*;
-//import java.nio.file.Path;
-//import java.nio.file.Paths;
 import java.util.*;
-import java.util.List;
-
-import inlupp2.places.*;
-
 import javax.imageio.ImageIO;
 import javax.swing.*;
 import javax.swing.border.EtchedBorder;
-import javax.swing.event.ListSelectionEvent;
-import javax.swing.event.ListSelectionListener;
+import javax.swing.event.*;
 import javax.swing.filechooser.*;
 
+/**
+ * The main class. <br>
+ * Creates the GUI and provides functionality for GUI elements.
+ * @author Victor Sago, <a href="mailto:VictorSago01@gmail.com"> VictorSago01@gmail.com</a>
+ */
 public class MappedPlaces extends JFrame {
 
-    private static final long serialVersionUID = -3402082705878159990L;
+    private static final long serialVersionUID = 7501471877325818300L;
 
     // For "What is here?"-button
     private static final int lookupRadius = 11;		// Value of 7 makes the area to be examined too small
     
-//    static Locale 			currentLocale 	= new Locale("sv", "SE");	//$NON-NLS-1$ //$NON-NLS-2$
-    static Locale			currentLocale 	= new Locale("en", "GB");	//$NON-NLS-1$ //$NON-NLS-2$
-    public static ResourceBundle 	msgStrings 	= ResourceBundle.getBundle("inlupp2.resources.messages", currentLocale); //$NON-NLS-1$ //$NON-NLS-2$
+//    static Locale 			currentLocale 	= new Locale("sv", "SE");
+    static Locale			currentLocale 	= new Locale("en", "GB");
+    public static ResourceBundle 	msgStrings 	= ResourceBundle.getBundle("inlupp2.resources.messages", currentLocale);
 
-    private JFileChooser 	jfc 	= new JFileChooser(".");			//$NON-NLS-1$
-    private JColorChooser 	jcc	= new JColorChooser(Color.BLACK);
+    private JFileChooser 	jfc 	= new JFileChooser(".");
+    private JColorChooser 	jcc	= new JColorChooser();
     
     // Name of the current file
-    private String docfile = "";							//$NON-NLS-1$
+    private String docfile = "";
 
-    private JTextField 	tfSearch 	= new JTextField(25);
+    // GUI components
+    private MapPanel 	pnlMainPane 	= new MapPanel();
     private JPanel 	pnlTopPane 	= new JPanel();
     private JPanel 	pnlEastPane 	= new JPanel();
     private JPanel	pnlSouthPane	= new JPanel();
-    private JLabel	lblStatus	= new JLabel(msgStrings.getString("strStatus"), SwingConstants.LEFT); //$NON-NLS-1$
-    
-    private MapPanel pnlMainPane = new MapPanel();
-    
+    private JTextField 	tfSearch 	= new JTextField(25);
+    private JLabel	lblStatus	= new JLabel(msgStrings.getString("strStatus"), SwingConstants.LEFT);
+        
     private JComboBox<String> 			cbxPlaceTypes 	= new JComboBox<>();
-    private DefaultListModel<PlaceCategory> 	lstmod 		= new DefaultListModel<>();
-    private JList<PlaceCategory> 		lstCategories 	= new JList<>(lstmod);
+    private DefaultListModel<Category> 	lstmod 		= new DefaultListModel<>();
+    private JList<Category> 		lstCategories 	= new JList<>(lstmod);
     
-    private JMenuItem 	miSave 		= new JMenuItem(msgStrings.getString("miSave")), 		//$NON-NLS-1$
-	    		miSaveAs 	= new JMenuItem(msgStrings.getString("miSaveAs")); 		//$NON-NLS-1$
+    // Menu bar and items
+    private JMenuBar	mymenubar = new JMenuBar();
+    private JMenu	fileMenu  = new JMenu(msgStrings.getString("menuFile"));
+    private JMenuItem 	miNew 	  = new JMenuItem(msgStrings.getString("miNewMap")),
+	    		miOpen 	  = new JMenuItem(msgStrings.getString("miOpen")),
+	    		miExit 	  = new JMenuItem(msgStrings.getString("miExit")),
+	    		miSave	  = new JMenuItem(msgStrings.getString("miSave")),
+	    		miSaveAs  = new JMenuItem(msgStrings.getString("miSaveAs"));
     
     // Buttons
-//    private JButton 	btnSearch 	= new JButton(msgStrings.getString("btnSearch")), 		//$NON-NLS-1$
-//	    		btnHide 	= new JButton(msgStrings.getString("btnHidePlaces")),		//$NON-NLS-1$
-//	    		btnDel 		= new JButton(msgStrings.getString("btnDelPlaces")), 		//$NON-NLS-1$
-//	    		btnWhat 	= new JButton(msgStrings.getString("btnWhatHere")), 		//$NON-NLS-1$
-//	    		btnCatHide 	= new JButton(msgStrings.getString("btnCatHide")), 		//$NON-NLS-1$
-//	    		btnCatNew 	= new JButton(msgStrings.getString("btnCatNew")), 		//$NON-NLS-1$
-//	    		btnCatDel 	= new JButton(msgStrings.getString("btnCatDel")); 		//$NON-NLS-1$
+    private JButton 	btnSearch 	= new JButton(msgStrings.getString("btnSearch")),
+	    		btnHide 	= new JButton(msgStrings.getString("btnHidePlaces")),
+	    		btnDel 		= new JButton(msgStrings.getString("btnDelPlaces")),
+	    		btnWhat 	= new JButton(msgStrings.getString("btnWhatHere")),
+	    		btnCatHide 	= new JButton(msgStrings.getString("btnCatHide")),
+	    		btnCatNew 	= new JButton(msgStrings.getString("btnCatNew")),
+	    		btnCatDel 	= new JButton(msgStrings.getString("btnCatDel"));
     
+    // Put all visible buttons into one array list
+    // and their corresponding ActionListener into another
     private ArrayList<JButton> 		buttonList 	= new ArrayList<>();
     private ArrayList<ActionListener> 	btnListenerList = new ArrayList<>();
 
-    // Listeners
+    // Listeners that can be added to or removed from a GUI component
     private CreatePlaceListener placeCreator	= new CreatePlaceListener();
     private QueryListener	whatsHere	= new QueryListener();
-    private PlaceMouseListener 	pAdapt 		= new PlaceMouseListener();
-//    private SearchListener 	searchlistener 	= new SearchListener();
+    private PlaceMouseListener 	placeListener 		= new PlaceMouseListener();
+    private SearchListener 	searchlistener 	= new SearchListener();
+    private ExitListener 	exLis 		= new ExitListener();
+    private SaveListener 	saveLis 	= new SaveListener();
+    private NewPlaceListener 	chooseType 	= new NewPlaceListener();
 
     /**
-     * @param title
+     * @param title The title of the main window
      * @throws HeadlessException
      */
     public MappedPlaces(String title) throws HeadlessException {
 	
 	super(title);
 	
-	// Menu Bar
-	JMenuBar  mymenubar 	= new JMenuBar();
-	JMenu 	  fileMenu	= new JMenu(msgStrings.getString("menuFile")); 			//$NON-NLS-1$
-	JMenuItem miNew 	= new JMenuItem(msgStrings.getString("miNewMap")), 		//$NON-NLS-1$
-		  miOpen 	= new JMenuItem(msgStrings.getString("miOpen")), 		//$NON-NLS-1$
-		  miExit 	= new JMenuItem(msgStrings.getString("miExit")); 		//$NON-NLS-1$
-	
-	SearchListener 	searchlistener 	= new SearchListener();
-	ExitListener 	exLis 		= new ExitListener();
-	SaveListener 	saveLis 	= new SaveListener();
-	
-	JButton btnSearch 	= new JButton(msgStrings.getString("btnSearch")), 		//$NON-NLS-1$
-    		btnHide 	= new JButton(msgStrings.getString("btnHidePlaces")),		//$NON-NLS-1$
-    		btnDel 		= new JButton(msgStrings.getString("btnDelPlaces")), 		//$NON-NLS-1$
-    		btnWhat 	= new JButton(msgStrings.getString("btnWhatHere")), 		//$NON-NLS-1$
-    		btnCatHide 	= new JButton(msgStrings.getString("btnCatHide")), 		//$NON-NLS-1$
-    		btnCatNew 	= new JButton(msgStrings.getString("btnCatNew")), 		//$NON-NLS-1$
-    		btnCatDel 	= new JButton(msgStrings.getString("btnCatDel")); 		//$NON-NLS-1$
-	
+	// Fill the button list with buttons
 	buttonList.add(btnSearch);
 	buttonList.add(btnHide);
 	buttonList.add(btnDel);
@@ -112,6 +104,7 @@ public class MappedPlaces extends JFrame {
 	buttonList.add(btnCatNew);
 	buttonList.add(btnCatDel);
 	
+	// Fill the listener list with listeners
 	btnListenerList.add(searchlistener);
 	btnListenerList.add(new HidePlacesListener());
 	btnListenerList.add(new DeletePlacesListener());
@@ -121,6 +114,10 @@ public class MappedPlaces extends JFrame {
 	btnListenerList.add(new DeleteCategoryListener());		
 
 	setLayout(new BorderLayout(2, 2));
+	
+	// Used in the placement of components in the top and east panes
+	Dimension hSpace = new Dimension(4, 1);
+	Dimension vSpace = new Dimension(1, 4);
 	
 	// Create main menu bar and add menu items
 	setJMenuBar(mymenubar);
@@ -142,26 +139,22 @@ public class MappedPlaces extends JFrame {
 	miExit.addActionListener(exLis);
 	
 	// Add central area
-	pnlMainPane.setLayout(null);
-	
+	pnlMainPane.setLayout(null);	
 	add(pnlMainPane, BorderLayout.CENTER);
 		
 	// Add top panel with buttons and other elements
-	Dimension hSpace = new Dimension(4, 1);
-	Dimension vSpace = new Dimension(1, 4);
 	pnlTopPane.setLayout(new BoxLayout(pnlTopPane, BoxLayout.X_AXIS));
-	JLabel lblNew = new JLabel(msgStrings.getString("lblNew")); 					//$NON-NLS-1$
+	JLabel lblNew = new JLabel(msgStrings.getString("lblNew"));
 	pnlTopPane.add(Box.createRigidArea(hSpace));
 	pnlTopPane.add(lblNew);
 	pnlTopPane.add(Box.createRigidArea(hSpace));
-	cbxPlaceTypes.addItem(msgStrings.getString("cbxNamedPlaces")); 					//$NON-NLS-1$
-	cbxPlaceTypes.addItem(msgStrings.getString("cbxDescribedPlaces")); 				//$NON-NLS-1$
-	cbxPlaceTypes.setMaximumSize(cbxPlaceTypes.getPreferredSize());
-	
+	cbxPlaceTypes.addItem(msgStrings.getString("cbxNamedPlaces"));
+	cbxPlaceTypes.addItem(msgStrings.getString("cbxDescribedPlaces"));
+	cbxPlaceTypes.setMaximumSize(cbxPlaceTypes.getPreferredSize());	
 	pnlTopPane.add(cbxPlaceTypes);
 	pnlTopPane.add(Box.createRigidArea(hSpace));
 	tfSearch.setForeground(Color.GRAY);
-	tfSearch.setText(msgStrings.getString("strSearch")); //$NON-NLS-1$
+	tfSearch.setText(msgStrings.getString("strSearch"));
 	tfSearch.setMaximumSize(tfSearch.getPreferredSize());
 	pnlTopPane.add(tfSearch);
 	pnlTopPane.add(Box.createRigidArea(hSpace));
@@ -179,17 +172,15 @@ public class MappedPlaces extends JFrame {
 	pnlEastPane.setLayout(new BoxLayout(pnlEastPane, BoxLayout.Y_AXIS));
 	pnlEastPane.add(Box.createVerticalGlue());
 	pnlEastPane.add(Box.createRigidArea(vSpace));
-	JLabel lblCategories = new JLabel(msgStrings.getString("lblCategories")); //$NON-NLS-1$
+	JLabel lblCategories = new JLabel(msgStrings.getString("lblCategories"));
 	pnlEastPane.add(lblCategories);
 	pnlEastPane.add(Box.createRigidArea(vSpace));	
 	JScrollPane spCatList = new JScrollPane(lstCategories, 
 						JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED, 
 						JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED);
-//	Dimension dim = lstCategories.getPreferredSize();
 	lstCategories.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
 	lstCategories.setCellRenderer(new CategoryListRenderer());
 	lstCategories.addListSelectionListener(new CategorySelectionListener());
-//	dim.width = 200;
 	spCatList.setPreferredSize(new Dimension(120, 140));
 	pnlEastPane.add(spCatList);
 	pnlEastPane.add(Box.createRigidArea(vSpace));
@@ -202,47 +193,45 @@ public class MappedPlaces extends JFrame {
 	pnlEastPane.add(Box.createVerticalGlue());
 	add(pnlEastPane, BorderLayout.EAST);
 	
-	// Add Listeners to buttons and other visual elements
-	cbxPlaceTypes.addActionListener(new NewPlaceListener());
-	tfSearch.addFocusListener(new SearchFieldFocusListener());	
-	tfSearch.addActionListener(searchlistener);
-	disableButtons();
-//	btnSearch.addActionListener(searchlistener);
-//	btnSearch.setEnabled(false);
-//	btnHide.addActionListener(new HidePlacesListener());
-//	btnHide.setEnabled(false);
-//	btnDel.addActionListener(new DeletePlacesListener());
-//	btnDel.setEnabled(false);
-//	btnWhat.addActionListener(new WhatHereListener());
-//	btnWhat.setEnabled(false);
-//	btnCatHide.addActionListener(new HideCategoryListener());
-//	btnCatHide.setEnabled(false);
-//	btnCatNew.addActionListener(new NewCategoryListener());
-//	btnCatNew.setEnabled(false);
-//	btnCatDel.addActionListener(new DeleteCategoryListener());
-//	btnCatDel.setEnabled(false);
-
-	
 	pnlSouthPane.setLayout(new BoxLayout(pnlSouthPane, BoxLayout.X_AXIS));
-	pnlSouthPane.setBorder(new EtchedBorder(EtchedBorder.LOWERED));
-	pnlSouthPane.setPreferredSize(new Dimension(this.getWidth(), 18));
+	pnlSouthPane.setBorder(new EtchedBorder(EtchedBorder.LOWERED));	
+	
+	pnlSouthPane.setPreferredSize(new Dimension(this.getWidth(), 20));
 	pnlSouthPane.add(lblStatus);
+	
 	pnlSouthPane.add(Box.createHorizontalGlue());
+	
 	add(pnlSouthPane, BorderLayout.SOUTH);
 	
+	// Add the rest of the Listeners to GUI elements
+	cbxPlaceTypes.addActionListener(chooseType);
+	tfSearch.addFocusListener(new SearchFieldFocusListener());	
+	tfSearch.addActionListener(searchlistener);
 	addWindowListener(exLis);
+	
+	// Buttons cannot be used until a map is loaded
+	disableButtons();
+	
 	setDefaultCloseOperation(DO_NOTHING_ON_CLOSE);
 	setMinimumSize(new Dimension(980, 300));
 	pack();
 	setVisible(true);
     }
     
+    /**
+     * Enable button actions by adding to each button a corresponding ActionListener.
+     * 
+     */
     private void enableButtons() {
 	for(int i = 0; i < buttonList.size(); i++) {
 	    buttonList.get(i).addActionListener(btnListenerList.get(i));
 	}
     }
     
+    /**
+     * Disable button actions by removing from each button that button's ActionListener.
+     * 
+     */
     private void disableButtons() {
 	for(int i = 0; i < buttonList.size(); i++) {
 	    buttonList.get(i).removeActionListener(btnListenerList.get(i));
@@ -250,78 +239,67 @@ public class MappedPlaces extends JFrame {
     }
 
     /**
-     * @param title
-     * @param gc
-     */
-    /*
-    public MappedPlaces(String title, GraphicsConfiguration gc) {
-	super(title, gc);
-	// TODO Auto-generated constructor stub
-    }
-    */
-    
-    /**
-     * Listener for menu item "New"
-     * Load new map
+     * Listener for menu item "New map. <br>
+     * Loads a new map from file.
      */
     class NewMapListener implements ActionListener {
 
-	/* (non-Javadoc)
-	 * @see java.awt.event.ActionListener#actionPerformed(java.awt.event.ActionEvent)
-	 */
 	@Override
 	public void actionPerformed(ActionEvent aev) {
+	    // If the contents of the main pane has been modified
+	    // and not saved then ask for confirmation
 	    if (pnlMainPane.isModified()) {
 		int dialogAnswer = JOptionPane.showConfirmDialog(MappedPlaces.this, 
-							msgStrings.getString("strConfirmContinue")); 	//$NON-NLS-1$
+							msgStrings.getString("strConfirmContinue"));
 		if (dialogAnswer != JOptionPane.OK_OPTION) {
 		    return;
 		}
 	    }
-//	    jfc.setLocale(new Locale("sv"));
+	    
+	    // Prepare FileChooser dialogue and then diplay it
 	    jfc.resetChoosableFileFilters();
 	    FileNameExtensionFilter fnef = 
-		    new FileNameExtensionFilter(msgStrings.getString("strImageFiles"), 			//$NON-NLS-1$
-			    "png", "jpg", "jpeg", "gif", "bmp", "wbmp"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$ //$NON-NLS-5$ //$NON-NLS-6$
+		    new FileNameExtensionFilter(msgStrings.getString("strImageFiles"),
+			    "png", "jpg", "jpeg", "gif", "bmp", "wbmp");
 	    jfc.addChoosableFileFilter(fnef);
 	    jfc.setFileSelectionMode(JFileChooser.FILES_ONLY);
 	    jfc.setFileFilter(fnef);
-	    jfc.setSelectedFile(new File(""));
+	    jfc.setSelectedFile(new File("")); 	// In case a file was opened before reset it
 	    int dlgResult = jfc.showOpenDialog(MappedPlaces.this);
 	    if (dlgResult != JFileChooser.APPROVE_OPTION) {
 		return;
-	    }		
+	    }
+	    
+	    // Read the image from chosen file
 	    File imgfile = jfc.getSelectedFile();
-	    // 2015-05-14 Changed from Image to BufferedImage
 	    BufferedImage bgImage = null;
-	    jfc.resetChoosableFileFilters();
+	    jfc.resetChoosableFileFilters();		// Reset file filters so that next time the dialogue is opened no name is filled in
 	    try {
 		bgImage = ImageIO.read(imgfile);
 	    } catch (IOException e) {
-		System.err.println(msgStrings.getString("errorMapLoad") + e.getMessage()); 		//$NON-NLS-1$
+		System.err.println(msgStrings.getString("errorMapLoad") + e.getMessage());
+		lblStatus.setText(msgStrings.getString("errorMapLoad"));
+		return;
 	    }
 	    try {
-	        remove(pnlMainPane);
-	        pnlMainPane = new MapPanel(bgImage);
-	        add(pnlMainPane, BorderLayout.CENTER);
-	        lstmod.clear();
+	        remove(pnlMainPane); 			// Remove the main panel,  
+	        pnlMainPane = new MapPanel(bgImage);	//  initialize a new one with the image that has just been read
+	        add(pnlMainPane, BorderLayout.CENTER);	//  and add it to the main frame
+	        lstmod.clear();				// Clear the old category list
+	        // The file where everything will be saved hasn't been given a name yet
 	        docfile = "";
             } catch (Exception e) {
-	        // TODO Auto-generated catch block
         	System.err.println(e.getMessage());
 	        e.printStackTrace();
             }
-	    docfile = imgfile.getAbsolutePath();	    
-	    lblStatus.setText(msgStrings.getString("msgStatusMapLoaded") + docfile + "\""); 		//$NON-NLS-1$
-	    docfile = docfile.substring(0, docfile.lastIndexOf(".")) + ".kart";
-	    
+	    String mapname = imgfile.getAbsolutePath();
+	    if (!(miSave.isEnabled() && miSaveAs.isEnabled())) {		// Enable saving
+		miSave.setEnabled(true);
+		miSaveAs.setEnabled(true);
+	    }
+	    lblStatus.setText(msgStrings.getString("msgStatusMapLoaded") + mapname + "\"");
+	    // After the map has been loaded the buttons can perform their actions
 	    enableButtons();
-//	    btnSearch.setEnabled(true);
-//	    btnHide.setEnabled(true);
-//	    Dimension t = pnlTopPane.getPreferredSize();
-//	    Dimension e = pnlEastPane.getPreferredSize();
-//	    Dimension c = pnlMainPane.getPreferredSize();
-//	    setMaximumSize(new Dimension(c.width + e.width, t.height + c.height));
 	    pack();
 	    validate();
 	    repaint();
@@ -329,75 +307,78 @@ public class MappedPlaces extends JFrame {
     }
 
     /**
-     * @author zeron
-     *
+     * Listener for menu item "Open". <br>
+     * Loads a previously saved file.
      */
     class OpenListener implements ActionListener {
 
-	/* (non-Javadoc)
-	 * @see java.awt.event.ActionListener#actionPerformed(java.awt.event.ActionEvent)
-	 */
 	@Override
 	public void actionPerformed(ActionEvent aev) {
+	    // If the contents of the main pane has been modified
+	    // and not saved then ask for confirmation
 	    if (pnlMainPane.isModified()) {
 		int dialogAnswer = JOptionPane.showConfirmDialog(MappedPlaces.this, 
-							msgStrings.getString("strConfirmContinue")); 	//$NON-NLS-1$
+							msgStrings.getString("strConfirmContinue"));
 		if (dialogAnswer != JOptionPane.OK_OPTION) {
 		    return;
-		}		    
+		}
 	    }
-//	    jfc.setLocale(currentLocale);
+	    
+	    // Prepare FileChooser dialogue and then display it
 	    jfc.resetChoosableFileFilters();
 	    FileNameExtensionFilter fnef = 
-		    new FileNameExtensionFilter(msgStrings.getString("strMappedFiles"), "kart"); //$NON-NLS-1$ //$NON-NLS-2$
+		    new FileNameExtensionFilter(msgStrings.getString("strMappedFiles"), "kart");
 	    jfc.addChoosableFileFilter(fnef);
 	    jfc.setFileSelectionMode(JFileChooser.FILES_ONLY);
 	    jfc.setFileFilter(fnef);
 	    int dlgResult = jfc.showOpenDialog(MappedPlaces.this);
 	    if (dlgResult != JFileChooser.APPROVE_OPTION) {
 		return;
-	    }		
+	    }
+	    
+	    // Read the contents from chosen file
 	    File file = jfc.getSelectedFile();
 	    docfile = file.getAbsolutePath();
 	    jfc.resetChoosableFileFilters();
 	    try {
-		remove(pnlMainPane);
-		lstmod.clear();
-		pnlMainPane = new MapPanel(file);
-	        add(pnlMainPane, BorderLayout.CENTER);	        
+		lstmod.clear();				// Clear the old category list
+		remove(pnlMainPane);			// Remove the main panel,
+		pnlMainPane = new MapPanel(file);	//  initialize a new one with the file that has just been read
+	        add(pnlMainPane, BorderLayout.CENTER);	//  and add it to the main frame
+	        // Add mouse listeners to each place from a loaded file
 	        for(Component comp : pnlMainPane.getComponents()) {
-	            comp.addMouseListener(pAdapt);
+	            comp.addMouseListener(placeListener);
 	        }		    
             } catch (ClassNotFoundException cnfe) {
-	        // TODO Handle exception
+		System.err.println(msgStrings.getString("errorFileFormat") + cnfe.getMessage());
+		lblStatus.setText(msgStrings.getString("errorFileFormat"));
 	        cnfe.printStackTrace();
+	        return;
             } catch (FileNotFoundException fnfe) {
-	        // TODO Handle exception
+		System.err.println(msgStrings.getString("errorFileNotFound") + fnfe.getMessage());
+		lblStatus.setText(msgStrings.getString("errorFileNotFound"));
 	        fnfe.printStackTrace();
+	        return;
             } catch (IOException ioe) {
-	        // TODO Handle exception
+		System.err.println(msgStrings.getString("errorGeneralIO") + ioe.getMessage());
+		lblStatus.setText(msgStrings.getString("errorGeneralIO"));
 	        ioe.printStackTrace();
+	        return;
             }
-	    for (PlaceCategory c : pnlMainPane.getCategories()) {
+	    for (Category c : pnlMainPane.getCategories()) {		// Fill the category list
 		lstmod.addElement(c);
 	    }
-	    if (!(miSave.isEnabled() && miSaveAs.isEnabled())) {
+	    if (!(miSave.isEnabled() && miSaveAs.isEnabled())) {		// Enable saving
 		miSave.setEnabled(true);
 		miSaveAs.setEnabled(true);
 	    }
-//	    if (!btnSearch.isEnabled()) {
-//		btnSearch.setEnabled(true);
-//	    }
 	    lblStatus.setText(msgStrings.getString("msgStatusOpened") + 
 		    docfile.substring(docfile.lastIndexOf(File.separator)+1) + 
 		    msgStrings.getString("msgStatusAt") + 
 		    docfile.substring(0, docfile.lastIndexOf(File.separator) + 1) + "\"");
+	    
+	    // After the document has been loaded the buttons can perform their actions
 	    enableButtons();
-//	    Dimension t = pnlTopPane.getPreferredSize();
-//	    Dimension e = pnlEastPane.getPreferredSize();
-//	    Dimension c = pnlMainPane.getPreferredSize();
-//	    Dimension s = pnlSouthPane.getPreferredSize();
-//	    setMaximumSize(new Dimension(c.width + e.width, t.height + c.height + s.height));
 	    pack();
 	    validate();
 	    repaint();
@@ -405,27 +386,26 @@ public class MappedPlaces extends JFrame {
     }
 
     /**
-     * @author zeron
-     *
+     * Listener for menu items "Save" and "Save as". <br>
+     * Saves the current Place Map to a file.
      */
     class SaveListener implements ActionListener {
 
-	/* (non-Javadoc)
-	 * @see java.awt.event.ActionListener#actionPerformed(java.awt.event.ActionEvent)
-	 */
 	@Override
 	public void actionPerformed(ActionEvent aev) {
 	    if (!pnlMainPane.hasMapImage()) {
-		JOptionPane.showMessageDialog(MappedPlaces.this, msgStrings.getString("msgNothingToSave"), 	//$NON-NLS-1$
-			msgStrings.getString("msgNoMapTitle"), JOptionPane.ERROR_MESSAGE); 			//$NON-NLS-1$
+		JOptionPane.showMessageDialog(MappedPlaces.this, msgStrings.getString("msgNothingToSave"),
+			msgStrings.getString("msgNoMapTitle"), JOptionPane.ERROR_MESSAGE);
 		return;
 	    }
+	    
+	    // Determine whether it's "Save" or "Save as"
 	    JMenuItem mi = (JMenuItem) aev.getSource();
-	    if (mi.getText() == msgStrings.getString("miSaveAs") || docfile.equalsIgnoreCase("")) {	//$NON-NLS-1$ //$NON-NLS-2$
-//		jfc.setLocale(currentLocale);
+	    // If it's "Save as" or if no file has been named/loaded then ask for a file name
+	    if (mi.getText() == msgStrings.getString("miSaveAs") || docfile.equalsIgnoreCase("")) {
 		jfc.resetChoosableFileFilters();
 		FileNameExtensionFilter fnef = 
-			new FileNameExtensionFilter(msgStrings.getString("strMappedFiles"), "kart"); 	//$NON-NLS-1$ //$NON-NLS-2$
+			new FileNameExtensionFilter(msgStrings.getString("strMappedFiles"), "kart");
 		jfc.addChoosableFileFilter(fnef);
 		jfc.setFileSelectionMode(JFileChooser.FILES_ONLY);
 		jfc.setFileFilter(fnef);
@@ -433,24 +413,28 @@ public class MappedPlaces extends JFrame {
 		if (dlgResult != JFileChooser.APPROVE_OPTION)
 		    return;
 		File file = jfc.getSelectedFile();
-		docfile = file.getAbsolutePath();
-		if (!docfile.endsWith(".kart")) {
+		docfile = file.getAbsolutePath();	// docfile is reused at subsequent "Save" actions
+		if (!docfile.endsWith(".kart")) {	// The extension for data files is ".kart"
 		    docfile += ".kart";
 		}
 		jfc.resetChoosableFileFilters();
 	    }
 	    try {
-		for(Component comp : pnlMainPane.getComponents())
-		    comp.removeMouseListener(pAdapt);
-	        pnlMainPane.saveData(docfile);
-	        for(Component comp : pnlMainPane.getComponents())
-		    comp.addMouseListener(pAdapt);
+		for(Component comp : pnlMainPane.getComponents())	// Remove mouse listeners prior to saving
+		    comp.removeMouseListener(placeListener);
+	        pnlMainPane.saveData(docfile);				// Save data file
+	        for(Component comp : pnlMainPane.getComponents())	// Re-add mouse listeners
+		    comp.addMouseListener(placeListener);
 	    } catch (FileNotFoundException fnfe) {
-		// TODO Handle exception
-		fnfe.printStackTrace();
+		System.err.println(msgStrings.getString("errorFileNotFound") + fnfe.getMessage());
+		lblStatus.setText(msgStrings.getString("errorFileNotFound"));
+	        fnfe.printStackTrace();
+	        return;
             } catch (IOException ioe) {
-	        // TODO Handle exception
+		System.err.println(msgStrings.getString("errorGeneralIO") + ioe.getMessage());
+		lblStatus.setText(msgStrings.getString("errorGeneralIO"));
 	        ioe.printStackTrace();
+	        return;
             }
 	    lblStatus.setText(msgStrings.getString("msgStatusSaved") + 
 		    docfile.substring(docfile.lastIndexOf(File.separator)+1) + 
@@ -460,20 +444,17 @@ public class MappedPlaces extends JFrame {
     }
     
     /**
-     * Listener for exit menu item and exit button
-     * Exits program if document hasn't been modified
-     * otherwise asks for confirmation first
-     */
-    /**
-     * @author zeron
-     *
+     * Listener for "Exit" menu item and exit button. <br>
+     * Exits program if document hasn't been modified,
+     * otherwise asks for confirmation first.
      */
     class ExitListener extends WindowAdapter implements ActionListener {
 	
-	private void exitProgram(){
+	private void exitProgram(AWTEvent aev){
+	    // If document has been modified ask for confirmation
 	    if (pnlMainPane.isModified()) {
 		int dialogAnswer = JOptionPane.showConfirmDialog(MappedPlaces.this, 
-							msgStrings.getString("strConfirmExit")); 	//$NON-NLS-1$
+							msgStrings.getString("strConfirmExit"));
 		if (dialogAnswer == JOptionPane.OK_OPTION) {
 		    System.exit(0);
 		}		    
@@ -482,201 +463,203 @@ public class MappedPlaces extends JFrame {
 	    }
 	}
 	
+	@Override
 	public void actionPerformed(ActionEvent aev){
-	    exitProgram();
+	    exitProgram(aev);
 	}
 	
+	@Override
 	public void windowClosing(WindowEvent wev){
-	    exitProgram();
+	    exitProgram(wev);
 	}
     }
-    
+        
     /**
-     * Listener for creating new place markers on the map
-     * Changes the cursor and prepares for creation of a new place marker
-     */
-    /**
-     * @author zeron
-     *
+     * Listener that reacts to choice of place type to create. <br>
+     * Changes the cursor and prepares for creation of a new place marker.
      */
     public class NewPlaceListener implements ActionListener {
-	/* (non-Javadoc)
-	 * @see java.awt.event.ActionListener#actionPerformed(java.awt.event.ActionEvent)
-	 */
+
 	@Override
 	public void actionPerformed(ActionEvent e) {
-	    if (pnlMainPane.hasMapImage()) {
+	    if (pnlMainPane.hasMapImage()) {			// New place markers can be created only if there is a map loaded
 		pnlMainPane.addMouseListener(placeCreator);
 		pnlMainPane.setCursor(Cursor.getPredefinedCursor(Cursor.CROSSHAIR_CURSOR));
-		lblStatus.setText(msgStrings.getString("msgStatusCreatePlace"));			//$NON-NLS-1$
+		cbxPlaceTypes.removeActionListener(chooseType);		// Only one place marker at a time can be created
+		cbxPlaceTypes.setEnabled(false);
+		lblStatus.setText(msgStrings.getString("msgStatusCreatePlace"));
 	    }
 	}
     }
     
     /**
-     * Listener for creating new place markers on the map
-     * Creates new place markers and restores normal cursor
-     */
-    /**
-     * @author zeron
-     *
+     * Listener for creating new place markers on the map. <br>
+     * Creates new place marker, stores it and restores normal cursor.
      */
     class CreatePlaceListener extends MouseAdapter {
 	
-	/* (non-Javadoc)
-	 * @see java.awt.event.MouseAdapter#mouseClicked(java.awt.event.MouseEvent)
-	 */
 	@Override
 	public void mouseClicked(MouseEvent mev) {
-	    // determine click position
+	    // determine click position and create new Position object
 	    int x = mev.getX();
 	    int y = mev.getY();
-	    
-	    PlacePosition newPos = new PlacePosition(x, y);
+	    Position newPos = new Position(x, y);
 
-	    // determine chosen placeType: read the combobox choice
+	    // Determine chosen placeType: read the combobox choice
 	    String placeType = (String)cbxPlaceTypes.getSelectedItem();
 	    
-	    // determine chosen category
-	    PlaceCategory currentCat = null;
-	    // read the JList choice
-	    // if an element is selected - find right category
+	    // Determine if a category is selected and which one it is
+	    Category currentCat = null;
 	    if (lstCategories.getSelectedIndex() != -1) {
 		currentCat = lstCategories.getSelectedValue();
 	    }
 	    
 	    // create place of chosen type and category
-	    Place newPlace;
-	    if (placeType.equalsIgnoreCase(msgStrings.getString("cbxNamedPlaces"))) { 			//$NON-NLS-1$
-		PlaceAddForm inputFrm = new NamedPlaceAddForm();
-		String dlgTitle = msgStrings.getString("strNew") + " " + msgStrings.getString("strNamedPlace"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
-		int dlgResult = JOptionPane.showConfirmDialog(MappedPlaces.this, inputFrm, dlgTitle,
-						JOptionPane.OK_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE); 
-		if (dlgResult == JOptionPane.OK_OPTION) {
-		    String newPlaceName = inputFrm.getName();
-		    if (newPlaceName == "") {   							//$NON-NLS-1$
-			JOptionPane.showMessageDialog(MappedPlaces.this, 
-	    			msgStrings.getString("msgNewPlaceErr"),  				//$NON-NLS-1$
-	    			msgStrings.getString("dlgPlaceErrTitle"), JOptionPane.ERROR_MESSAGE); 	//$NON-NLS-1$
-			return;
-		    }
-		    // if a category is selected
-		    if (currentCat != null) {
-			// Create Named Place of selected category
-			newPlace = new NamedPlace(newPlaceName, newPos, currentCat);			
-		    } else {
-			// otherwise create Named Place without category
-			newPlace = new NamedPlace(newPlaceName, newPos);
-		    }
-		    pnlMainPane.addPlace(newPos, newPlaceName, newPlace);
-		    lblStatus.setText(msgStrings.getString("msgStatusCreated1") 			//$NON-NLS-1$
-			    + newPlace.getName() + msgStrings.getString("msgStatusCreated2"));		//$NON-NLS-1$
-		    newPlace.addMouseListener(pAdapt);
-		}
-	    } else if (placeType.equalsIgnoreCase(msgStrings.getString("cbxDescribedPlaces"))) { 	//$NON-NLS-1$
-		DescribedPlaceAddForm inputFrm = new DescribedPlaceAddForm();
-		String dlgTitle = msgStrings.getString("strNew") + " " + msgStrings.getString("strDescPlace"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
-		int dlgResult = JOptionPane.showConfirmDialog(MappedPlaces.this, inputFrm, dlgTitle,
-						JOptionPane.OK_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE); 
-		if (dlgResult == JOptionPane.OK_OPTION) {
-		    String newPlaceName = inputFrm.getName();
-		    String newPlaceDescription = inputFrm.getDescription();
-		    if (newPlaceName == "") {   							//$NON-NLS-1$
-			JOptionPane.showMessageDialog(MappedPlaces.this, 
-	    			msgStrings.getString("msgNewPlaceErr"),  				//$NON-NLS-1$
-	    			msgStrings.getString("dlgPlaceErrTitle"), JOptionPane.ERROR_MESSAGE); 	//$NON-NLS-1$
-			return;
-		    }
-		    if (newPlaceDescription == "") {   							//$NON-NLS-1$
-			JOptionPane.showMessageDialog(MappedPlaces.this, 
-	    			msgStrings.getString("msgNewMissingDescription"),  			//$NON-NLS-1$
-	    			msgStrings.getString("dlgPlaceErrTitle"), JOptionPane.ERROR_MESSAGE); 	//$NON-NLS-1$
-			return;
-		    }
-		    // if a category is selected
-		    if (currentCat != null) {
-			// Create Described Place of selected category
-			newPlace = new DescribedPlace(newPlaceName, new PlacePosition(x, y), currentCat, newPlaceDescription);						
-		    } else {
-			// otherwise create Described Place without category
-			newPlace = new DescribedPlace(newPlaceName, new PlacePosition(x, y), newPlaceDescription);
-		    }		    
-		    pnlMainPane.addPlace(newPos, newPlaceName, newPlace);
-		    lblStatus.setText(msgStrings.getString("msgStatusCreated1")				//$NON-NLS-1$
-			    + newPlaceName + msgStrings.getString("msgStatusCreated2"));		//$NON-NLS-1$
-		    newPlace.addMouseListener(pAdapt);
-		}
+	    Place newPlace = null;
+	    PlaceAddForm inputFrm;
+	    String dlgTitle;
+	    if (placeType.equalsIgnoreCase(msgStrings.getString("cbxNamedPlaces"))) {
+		inputFrm = new NamedPlaceAddForm();
+		dlgTitle = msgStrings.getString("strNewNamedPlace");
+	    } else if (placeType.equalsIgnoreCase(msgStrings.getString("cbxDescribedPlaces"))) {
+		inputFrm = new DescribedPlaceAddForm();
+		dlgTitle = msgStrings.getString("strNewDescribedPlace");
 	    } else {
-		JOptionPane.showMessageDialog(MappedPlaces.this, 
-			msgStrings.getString("msgNoPlaceType"), 					//$NON-NLS-1$
-			msgStrings.getString("msgError"), JOptionPane.ERROR_MESSAGE);  			//$NON-NLS-1$
-	    }	    
+		// If something is wrong and placeType is assigned an unrecognizable value
+		// 	show an error message and return.
+		lblStatus.setText(msgStrings.getString("msgError") + ": " 
+			+ msgStrings.getString("msgNoPlaceType"));
+		JOptionPane.showMessageDialog(MappedPlaces.this, msgStrings.getString("msgNoPlaceType"), 
+				msgStrings.getString("msgError"), JOptionPane.ERROR_MESSAGE);
+		restoreState();
+		return;
+	    }
+	    // Open a dialogue with an input form for appropriate place type
+	    int dlgResult = JOptionPane.showConfirmDialog(MappedPlaces.this, inputFrm, dlgTitle,
+					JOptionPane.OK_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE);
+	    if (dlgResult != JOptionPane.OK_OPTION) {
+		lblStatus.setText(msgStrings.getString("msgStatusCancel"));
+		restoreState();
+		return;
+	    }
+	    String newPlaceName = inputFrm.getName();
+	    if (newPlaceName.equalsIgnoreCase("")) {
+		// If name for the new place marker hasn't been filled in
+		// 	show an error message and return.
+		lblStatus.setText(msgStrings.getString("msgNewPlaceErr"));
+		JOptionPane.showMessageDialog(MappedPlaces.this, msgStrings.getString("msgNewPlaceErr"), 
+	    			msgStrings.getString("dlgPlaceErrTitle"), JOptionPane.ERROR_MESSAGE);
+		restoreState();
+		return;
+	    }
+	    // Create a new place of appropriate type
+	    if (placeType.equalsIgnoreCase(msgStrings.getString("cbxNamedPlaces"))) {
+		// Create Named Place of selected category
+		newPlace = new NamedPlace(newPlaceName, newPos, currentCat);
+	    } else if (placeType.equalsIgnoreCase(msgStrings.getString("cbxDescribedPlaces"))) {
+		// If the chosen placeType is "described Place" get its description
+		String newPlaceDescription = ((DescribedPlaceAddForm) inputFrm).getDescription();
+		if (newPlaceDescription.equalsIgnoreCase("")) {
+		    // If description for a Described Place is empty
+		    // 		show an error message and return.
+		    lblStatus.setText(msgStrings.getString("msgNewMissingDescription"));
+		    JOptionPane.showMessageDialog(MappedPlaces.this, 
+	    			msgStrings.getString("msgNewMissingDescription"), 
+	    			msgStrings.getString("dlgPlaceErrTitle"), JOptionPane.ERROR_MESSAGE);
+		    restoreState();
+		    return;
+		}
+		// Create Described Place of selected category
+		newPlace = new DescribedPlace(newPlaceName, newPos, currentCat, newPlaceDescription);
+	    } else {
+		lblStatus.setText(msgStrings.getString("msgError") + ": " 
+					+ msgStrings.getString("msgNoPlaceType"));
+		restoreState();
+		return;
+	    }
+	    
+	    // If a place has been created and no errors were generated
+	    // 		add it to the main pane and associate an action listener with it.
+	    pnlMainPane.addPlace(newPos, newPlaceName, newPlace);
+	    newPlace.addMouseListener(placeListener);
+	    lblStatus.setText(msgStrings.getString("msgStatusCreated1") 
+			    + newPlace.getName() + msgStrings.getString("msgStatusCreated2"));
+	    // Lastly, make it possible to save the document if it hasn't been done already
 	    if (!(miSave.isEnabled() && miSaveAs.isEnabled())) {
 		miSave.setEnabled(true);
 		miSaveAs.setEnabled(true);
 	    }
 	    
-	    pnlMainPane.removeMouseListener(placeCreator);
-	    pnlMainPane.setCursor(Cursor.getDefaultCursor());
+	    restoreState();
 	    pnlMainPane.revalidate();
 	    pnlMainPane.repaint();
+	}
+	
+	/**
+	 * Common actions when leaving the mouseClicked method. <br>
+	 * Removes place creation listener and restores cursor and actions that were disabled for 
+	 * creation of a new place marker.
+	 */
+	private void restoreState() {
+	    pnlMainPane.removeMouseListener(placeCreator);
+	    pnlMainPane.setCursor(Cursor.getDefaultCursor());
+	    cbxPlaceTypes.addActionListener(chooseType);
+	    cbxPlaceTypes.setEnabled(true);
 	}
     }
 
     /**
-     * Listener for the search field
-     * Changes the field's text when it gets or looses focus
+     * Listener for the search field. <br>
+     * Changes the field's text when it gets or looses focus.
      */
     class SearchFieldFocusListener extends FocusAdapter {
 
 	@Override
 	public void focusGained(FocusEvent fev) {
-	    if (tfSearch.getText().equals(msgStrings.getString("strSearch"))) { 			//$NON-NLS-1$
+	    if (tfSearch.getText().equals(msgStrings.getString("strSearch"))) {
 		tfSearch.setForeground(Color.BLACK);
-		tfSearch.setText(""); 									//$NON-NLS-1$
+		tfSearch.setText("");
+		lblStatus.setText(msgStrings.getString("msgStatusWriteName"));
 	    }
 	}
 
 	@Override
 	public void focusLost(FocusEvent fev) {
-	    if (tfSearch.getText().equals("")) { 							//$NON-NLS-1$
+	    if (tfSearch.getText().equals("")) {
 		tfSearch.setForeground(Color.GRAY);
-		tfSearch.setText(msgStrings.getString("strSearch")); 					//$NON-NLS-1$
+		tfSearch.setText(msgStrings.getString("strSearch"));
+		lblStatus.setText("");
 	    }
 	}
     }
 
     /**
-     * @author zeron
-     *
+     * Listener for the search field "Enter"-action and for "Search"-button. <br>
+     * Searches the data structures for a place by name.
      */
     class SearchListener implements ActionListener {
 
-	/* (non-Javadoc)
-	 * @see java.awt.event.ActionListener#actionPerformed(java.awt.event.ActionEvent)
-	 */
 	@Override
 	public void actionPerformed(ActionEvent e) {
 	    String name = tfSearch.getText();
-	    	    
+	    
+	    // Can't search if there is no map and no data structures or if no place name has been entered
 	    if(!pnlMainPane.hasMapImage()) {
+		lblStatus.setText(msgStrings.getString("msgNoMapTitle"));
 		return;
 	    }
-	    if(name.equals("") || name.equals(msgStrings.getString("strSearch"))) {		//$NON-NLS-1$ //$NON-NLS-2$
-		lblStatus.setText(msgStrings.getString("msgStatusWriteName"));			//$NON-NLS-1$
+	    if(name.equals("") || name.equals(msgStrings.getString("strSearch"))) {
+		lblStatus.setText(msgStrings.getString("msgStatusWriteName"));
 		return;
 	    }
 	    
-	    String status = msgStrings.getString("msgStatusSearching") + name;			//$NON-NLS-1$
-//	    lblStatus.setText("Searching: " + name);
-
-	    ArrayList<Place> list = new ArrayList<Place>(pnlMainPane.getPlacesByName(name));
-	    pnlMainPane.setSelectedPlaces(list);
-	    if(list.isEmpty()) {
-		status += " ... " + msgStrings.getString("msgStatusNoSuchPlaces");		//$NON-NLS-1$ //$NON-NLS-2$
+	    String status = msgStrings.getString("msgStatusSearching") + name + " ... ";
+	    Collection<Place> places = pnlMainPane.getPlacesByName(name);
+	    if(places.isEmpty()) {
+		status += msgStrings.getString("msgStatusNoSuchPlaces");
 	    } else {
-		status += " ... " + msgStrings.getString("msgStatusFound") 			//$NON-NLS-1$ //$NON-NLS-2$
-			+ " " + list.size() + ".";						//$NON-NLS-1$ //$NON-NLS-2$
+		pnlMainPane.setSelectedPlaces(places);
+		status += msgStrings.getString("msgStatusFound") + " " + places.size() + ".";
 	    }
 	    lblStatus.setText(status);
 	    pnlMainPane.repaint();
@@ -684,121 +667,120 @@ public class MappedPlaces extends JFrame {
     }
 
     /**
-     * @author zeron
-     *
+     * Listener for the "Hide places"-button. <br>
+     * Hides all selected places. If no places are selected does nothing.
      */
     class HidePlacesListener implements ActionListener {
 
-	/* (non-Javadoc)
-	 * @see java.awt.event.ActionListener#actionPerformed(java.awt.event.ActionEvent)
-	 */
 	@Override
 	public void actionPerformed(ActionEvent e) {
+	    String status;
+	    // Get a list of all selected places
 	    Collection<Place> places = pnlMainPane.getSelectedPlaces();
-	    pnlMainPane.hidePlaces(places);
-	    pnlMainPane.repaint();
+	    if (places.isEmpty()) {
+		status = 0 + " " + msgStrings.getString("msgPlacesSelected");
+		lblStatus.setText(status);
+	    } else {
+		status = places.size() + " " + msgStrings.getString("msgStatusPlaces") 
+			+ " " + msgStrings.getString("msgStatusHidden");
+		// Hide all places in the list
+		pnlMainPane.hidePlaces(places);
+		lblStatus.setText(status);
+		pnlMainPane.repaint();
+	    }
 	}
     }
 
     /**
-     * @author zeron
-     *
+     * Listener for the "Delete places"-button. <br>
+     * Deletes all selected places. If no places are selected does nothing.
      */
     class DeletePlacesListener implements ActionListener {
 
-	/* (non-Javadoc)
-	 * @see java.awt.event.ActionListener#actionPerformed(java.awt.event.ActionEvent)
-	 */
 	@Override
 	public void actionPerformed(ActionEvent e) {
+	    String status;
+	    // Get a list of all selected places
 	    Collection<Place> places = pnlMainPane.getSelectedPlaces();
-	    pnlMainPane.removePlaces(places);
-//	    pnlMainPane.removeSelected();
-//	    pnlMainPane.revalidate();
-	    pnlMainPane.repaint();
+	    if (places.isEmpty()) {
+		status = 0 + " " + msgStrings.getString("msgPlacesSelected");
+		lblStatus.setText(status);
+	    } else {
+		status = places.size() + " " + msgStrings.getString("msgStatusPlaces") 
+			+ " " + msgStrings.getString("msgStatusRemoved");
+		// Delete all places in the list
+		pnlMainPane.removePlaces(places);
+		lblStatus.setText(status);
+		pnlMainPane.repaint();
+	    }
 	}
-
     }
 
     /**
-     * @author zeron
-     *
+     * Listener for the "What is here?"-button. <br>
+     * Changes the cursor and allows to query the map hidden about places at a specific position.
      */
     class WhatHereListener implements ActionListener {
 
-	/* (non-Javadoc)
-	 * @see java.awt.event.ActionListener#actionPerformed(java.awt.event.ActionEvent)
-	 */
 	@Override
 	public void actionPerformed(ActionEvent e) {
-	    // TODO Auto-generated method stub
 	    if (pnlMainPane.hasMapImage()) {
 		pnlMainPane.addMouseListener(whatsHere);
 		pnlMainPane.setCursor(Cursor.getPredefinedCursor(Cursor.CROSSHAIR_CURSOR));
-		lblStatus.setText(msgStrings.getString("msgStatusWhatIsHere"));			//$NON-NLS-1$
+		lblStatus.setText(msgStrings.getString("msgStatusWhatIsHere"));
 	    }
 	}
     }
     
     /**
-     * @author zeron
-     *
+     * Listener for querying the map about hidden places at a clicked position. <br>
+     * Finds out if there are any hidden places within an area of the clicked position.
      */
     class QueryListener extends MouseAdapter {
-	/**
-	 * @param mev
-	 */
+
 	@Override
 	public void mouseClicked(MouseEvent mev) {
 	    // determine click position
 	    int x = mev.getX();
 	    int y = mev.getY();
+	    lblStatus.setText("(" + x + ", " + y + ")");
 	    // Generate an array of coordinates of a 7x7 square centred in the click
-	    List<PlacePosition> coordinates = new ArrayList<PlacePosition>();
+	    Collection<Position> coordinates = new ArrayList<Position>();
 	    for (int i = -lookupRadius/2; i <= lookupRadius/2; i++) {
 		for (int j = -lookupRadius/2; j <= lookupRadius/2; j++) {
-		    coordinates.add(new PlacePosition(x+j, y+i));
+		    coordinates.add(new Position(x+j, y+i));
 		}
 	    }
-	    // Step through the array
-	    for (PlacePosition pos : coordinates) {
-		// For each pair of coordinates in the array query MapPanel for a place with these coordinates
+	    // Step through the array and for each pair of coordinates query MapPanel for a place with these coordinates
+	    for (Position pos : coordinates) {
 		Place place = pnlMainPane.getPlaceByPosition(pos);
-		// If such a place exists make it visible
+		// If a place exists at these coordinates make it visible
 		if (place != null) {
 		    place.setVisible(true);
-//		    place.setFolded(false);
 		}
 	    }
-	    System.out.println("\n(" + x + "; " + y + ") -> " + coordinates);
-	    // Remove QueryListener
+	    // Remove this QueryListener and restore the cursor to default
 	    pnlMainPane.removeMouseListener(whatsHere);
-	    // Set the mouse cursor to default
 	    pnlMainPane.setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
-	    // Revalidate and repaint
 	    pnlMainPane.revalidate();
 	    pnlMainPane.repaint();
 	}
-	
     }
-    
+        
     /**
-     * @author zeron
-     *
+     * Listener for Category List. <br>
+     * On category selection change makes all the places of the selected category visible and selected.
      */
     class CategorySelectionListener implements ListSelectionListener {
 
-	/* (non-Javadoc)
-	 * @see javax.swing.event.ListSelectionListener#valueChanged(javax.swing.event.ListSelectionEvent)
-	 */
 	@Override
 	public void valueChanged(ListSelectionEvent e) {
-	    PlaceCategory selectedCategory = lstCategories.getSelectedValue();
+	    Category selectedCategory = lstCategories.getSelectedValue();
 	    if (selectedCategory != null) {
-		String statustxt = msgStrings.getString("msgStatusCategory") + selectedCategory + " "	//$NON-NLS-1$ //$NON-NLS-2$
-				+ msgStrings.getString("msgStatusSelected") + ": ";			//$NON-NLS-1$ //$NON-NLS-2$
 		Collection<Place> places = pnlMainPane.getPlacesByCategory(selectedCategory);
-		statustxt += places.size() + " " + msgStrings.getString("msgStatusPlaces");		//$NON-NLS-1$
+		String statustxt = msgStrings.getString("msgStatusCategory") + selectedCategory + " " 
+				+ msgStrings.getString("msgStatusSelected") + ": ";
+		statustxt += places.size() + " " + msgStrings.getString("msgStatusPlaces");
 		pnlMainPane.setSelectedPlaces(places);
 		lblStatus.setText(statustxt);
 		pnlMainPane.repaint();
@@ -807,21 +789,24 @@ public class MappedPlaces extends JFrame {
     }
 
     /**
-     * @author zeron
-     *
+     * Listener for "Hide category"-button. <br>
+     * Hides all places in the selected category.
      */
     class HideCategoryListener implements ActionListener {
 
-	/* (non-Javadoc)
-	 * @see java.awt.event.ActionListener#actionPerformed(java.awt.event.ActionEvent)
-	 */
 	@Override
 	public void actionPerformed(ActionEvent e) {
-	    // TODO Auto-generated method stub
-	    PlaceCategory selectedCategory = lstCategories.getSelectedValue();
+	    Category selectedCategory = lstCategories.getSelectedValue();
 	    if (selectedCategory != null) {
+		// Get a list of all places in the selected category
 		Collection<Place> places = pnlMainPane.getPlacesByCategory(selectedCategory);
+		String statustxt = msgStrings.getString("msgStatusCategory") + selectedCategory + " " 
+			+ msgStrings.getString("msgStatusSelected") + ": ";
+		statustxt += places.size() + " " + msgStrings.getString("msgStatusPlaces");
+		statustxt += msgStrings.getString("msgStatusHidden");
+		// Hide all places in the list
 		pnlMainPane.hidePlaces(places);
+		lblStatus.setText(statustxt);
 		pnlMainPane.repaint();
 	    }
 	}
@@ -829,90 +814,95 @@ public class MappedPlaces extends JFrame {
 
 
     /**
-     * @author zeron
-     *
+     * Listener for "New category"-button. <br>
+     * Opens a dialogue for creation of a new category. Creates a new category if it doesn't already exist.
      */
     class NewCategoryListener implements ActionListener {
 
-	/* (non-Javadoc)
-	 * @see java.awt.event.ActionListener#actionPerformed(java.awt.event.ActionEvent)
-	 */
 	@Override
 	public void actionPerformed(ActionEvent e) {
 	    // If there is no map present categories cannot be created
 	    if (!pnlMainPane.hasMapImage()) {
-		JOptionPane.showMessageDialog(MappedPlaces.this, msgStrings.getString("msgMapMissing"), //$NON-NLS-1$
-			msgStrings.getString("msgNoMapTitle"), JOptionPane.ERROR_MESSAGE); 		//$NON-NLS-1$
+		lblStatus.setText(msgStrings.getString("msgMapMissing"));
+		JOptionPane.showMessageDialog(MappedPlaces.this, msgStrings.getString("msgMapMissing"), 
+			msgStrings.getString("msgNoMapTitle"), JOptionPane.ERROR_MESSAGE);
 		return;
 	    }
 	    
-	    JPanel main = new JPanel(new BorderLayout());
-	    JPanel top = new JPanel();
+	    // Create NewCategory-dialogue with ColorChooser panel in the centre
+	    // 		and Name input panel at the top
+	    JPanel dlgNewCat = new JPanel(new BorderLayout());
+	    JPanel pnlCatName = new JPanel();
 	    JTextField tfCatName = new JTextField(20);
-	    JLabel label1 = new JLabel(msgStrings.getString("dlgCatName")); 				//$NON-NLS-1$
-	    top.add(label1);
-	    top.add(tfCatName);
-	    main.add(top, BorderLayout.NORTH);
-	    main.add(jcc, BorderLayout.CENTER);
+	    JLabel lblCatName = new JLabel(msgStrings.getString("dlgCatName"));
+	    lblCatName.setLabelFor(tfCatName);
+	    pnlCatName.add(lblCatName);
+	    pnlCatName.add(tfCatName);
+	    dlgNewCat.add(pnlCatName, BorderLayout.NORTH);
+	    dlgNewCat.add(jcc, BorderLayout.CENTER);
 
-	    int dlgResult = JOptionPane.showConfirmDialog(MappedPlaces.this, main, 
-		    		msgStrings.getString("dlgNewCat"), JOptionPane.OK_CANCEL_OPTION, 	//$NON-NLS-1$
+	    // Display NewCategory-dialogue
+	    int dlgResult = JOptionPane.showConfirmDialog(MappedPlaces.this, dlgNewCat, 
+		    		msgStrings.getString("dlgNewCat"), JOptionPane.OK_CANCEL_OPTION, 
 		    		JOptionPane.PLAIN_MESSAGE);		    
 	    if (dlgResult == JOptionPane.OK_OPTION) {
 		String catName = tfCatName.getText();
-		if (catName.equals("")) { 								//$NON-NLS-1$
+		if (catName.equals("")) {
+		    // Nameless category cannot be created
+		    lblStatus.setText(msgStrings.getString("msgNewCatErr"));
 		    JOptionPane.showMessageDialog(MappedPlaces.this, 
-			    	msgStrings.getString("msgNewCatErr"),  					//$NON-NLS-1$
-			    	msgStrings.getString("dlgCatErrTitle"), JOptionPane.ERROR_MESSAGE); 	//$NON-NLS-1$
-		    return;
+			    	msgStrings.getString("msgNewCatErr"), 
+			    	msgStrings.getString("dlgCatErrTitle"), JOptionPane.ERROR_MESSAGE);
 		} else {
 		    Color newCol = jcc.getColor();
-		    PlaceCategory newCat = new PlaceCategory(catName, newCol);
-		    lstmod.addElement(newCat);
+		    Category newCat = new Category(catName, newCol);
 		    
-		    if (!pnlMainPane.addCategory(newCat)) {
+		    if (pnlMainPane.addCategory(newCat)) {		// The new category is added if it doesn't exist
+			lstmod.addElement(newCat);
+			lblStatus.setText(msgStrings.getString("msgStatusCategory") + 
+				"\"" + newCat.getName() + "\" " + 
+				msgStrings.getString("msgStatusWithColor") + "(" + 
+				newCat.getColor().getRed() + ", " + 
+				newCat.getColor().getGreen() + ", " + 
+				newCat.getColor().getBlue() + ") " + 
+				msgStrings.getString("msgStatusCreated"));
+			// Make it possible to save the document if it hasn't been done already
+			if (!(miSave.isEnabled() && miSaveAs.isEnabled())) {
+			    miSave.setEnabled(true);
+			    miSaveAs.setEnabled(true);
+			}
+		    } else {						// If category already exists
+			lblStatus.setText(msgStrings.getString("msgNewCatErr2"));
 			JOptionPane.showMessageDialog(MappedPlaces.this, 
-							msgStrings.getString("msgNewCatErr"),		//$NON-NLS-1$
-							msgStrings.getString("msgDlgTitleErr"),		//$NON-NLS-1$ 
-							JOptionPane.ERROR_MESSAGE);
+				msgStrings.getString("msgNewCatErr2"), 
+				msgStrings.getString("dlgCatErrTitle"),	
+				JOptionPane.ERROR_MESSAGE);
 		    }
-		    lblStatus.setText(msgStrings.getString("msgStatusCategory") + 			//$NON-NLS-1$
-			    		"\"" + newCat.getName() + "\" " +				//$NON-NLS-1$ //$NON-NLS-2$
-			    		msgStrings.getString("msgStatusWithColor") + "(" + 		//$NON-NLS-1$ //$NON-NLS-2$
-			    		newCat.getColor().getRed() + ", " + 				//$NON-NLS-1$
-			    		newCat.getColor().getGreen() + ", " +				//$NON-NLS-1$
-			    		newCat.getColor().getBlue() + ") " +				//$NON-NLS-1$
-			    		msgStrings.getString("msgStatusCreated"));			//$NON-NLS-1$
-		}
-		if (!(miSave.isEnabled() && miSaveAs.isEnabled())) {
-		    miSave.setEnabled(true);
-		    miSaveAs.setEnabled(true);
 		}
 	    }
 	}
     }
 
     /**
-     * @author zeron
-     *
+     * Listener for "Delete category"-button. <br>
+     * Deletes a category and all the places that belong to it.
      */
     class DeleteCategoryListener implements ActionListener {
 
-	/* (non-Javadoc)
-	 * @see java.awt.event.ActionListener#actionPerformed(java.awt.event.ActionEvent)
-	 */
 	@Override
 	public void actionPerformed(ActionEvent e) {
-	    // TODO Auto-generated method stub
-	    PlaceCategory selectedCategory = lstCategories.getSelectedValue();
+	    Category selectedCategory = lstCategories.getSelectedValue();
 	    if (selectedCategory != null) {
-		String statustxt = msgStrings.getString("msgStatusCategory") + selectedCategory + ": ";	//$NON-NLS-1$ //$NON-NLS-2$
+		String statustxt = msgStrings.getString("msgStatusCategory") + selectedCategory + ": ";
+		// Get a list of all places in the selected category
 		Collection<Place> places = pnlMainPane.getPlacesByCategory(selectedCategory);
-		statustxt += places.size() + " " + msgStrings.getString("msgStatusPlaces");		//$NON-NLS-1$ //$NON-NLS-2$
+		statustxt += places.size() + " " + msgStrings.getString("msgStatusPlaces");
+		// Delete all places in the list
 		pnlMainPane.removePlaces(places);
 		boolean rem = pnlMainPane.removeCategory(selectedCategory);
-		statustxt += rem ? (" " + msgStrings.getString("msgStatusRemoved"))			//$NON-NLS-1$ //$NON-NLS-2$
-				 : (" " + msgStrings.getString("msgStatusNotRemoved"));			//$NON-NLS-1$ //$NON-NLS-2$
+		statustxt += rem ? (" " + msgStrings.getString("msgStatusRemoved")) 
+				 : (" " + msgStrings.getString("msgStatusNotRemoved"));
+		// Remove the category from the category list
 		lstmod.removeElement(selectedCategory);
 		lblStatus.setText(statustxt);
 		pnlMainPane.repaint();
@@ -921,37 +911,28 @@ public class MappedPlaces extends JFrame {
     }
 
     /**
-     * @author zeron
-     *
+     * The listener for all Places. <br>
+     * Folds/unfolds, selects/unselects places, displays the information about a place in the status line.
      */
     class PlaceMouseListener extends MouseAdapter {
 	
 	@Override
 	public void mouseClicked(MouseEvent mev) {
-	    // TODO Adjust unfolded place position
-//	    System.out.println(mev.getSource());
 	    if (mev.getSource() instanceof Place) {
 		Place p = (Place) mev.getSource();
-		if (mev.getButton() == MouseEvent.BUTTON1) {
-		    if (p.isSelected()) {
-//			p.setSelected(false);
+		if (mev.getButton() == MouseEvent.BUTTON1) {		// If the left mouse button is clicked
+		    if (p.isSelected()) {				// Toggle selection of the clicked place
 			pnlMainPane.setSelectedPlace(p, false);
 		    } else {
-//			p.setSelected(true);
 			pnlMainPane.setSelectedPlace(p, true);
 		    }
-		} else if (mev.getButton() == MouseEvent.BUTTON3) {
-		    String status = "Right button clicked: " + p.getPosition().toString();
-		    Dimension d = p.getParent().getSize();
-		    status += " of " + d.width + " and " + d.height; 
-		    lblStatus.setText(status);
-		    if (p.isFolded()) {
+		} else if (mev.getButton() == MouseEvent.BUTTON3) {	// If the right mouse button is clicked
+		    if (p.isFolded()) {					// Toggle folded/unfolded state of the clicked place
 			p.setFolded(false);
 		    } else {
 			p.setFolded(true);
 		    }
 		}
-//		System.out.println(source.toString());
 	    }
 	    pnlMainPane.validate();
 	    pnlMainPane.repaint();
@@ -962,24 +943,14 @@ public class MappedPlaces extends JFrame {
 	    Place p = (Place) mev.getSource();
 	    String statustxt = "";
 	    if (p instanceof NamedPlace)
-		statustxt = "Named Place, ";
+		statustxt = msgStrings.getString("strNamedPlace") + ": ";
 	    else if (p instanceof DescribedPlace)
-		statustxt = "Described Place, ";
-	    statustxt += "Name: " + p.getName();
+		statustxt = msgStrings.getString("strDescPlace") + ": ";
+	    statustxt += p.getName();
 	    if (p.hasCategory()) {
-		statustxt += ", Category: " + p.getCategory().getName();
+		statustxt += ", " + msgStrings.getString("msgStatusCategory") + ": " + p.getCategory().getName();
 	    }
-	    if (p.isSelected()) {
-		statustxt += ", Selected";
-	    } else {
-		statustxt += ", Unselected";
-	    }
-	    if (p.isFolded()) {
-		statustxt += ", Folded";
-	    } else {
-		statustxt += ", Unfolded";
-	    }
-	    statustxt += ", Position: " + p.getPosition();
+	    statustxt += ", " + p.getPosition();
 	    lblStatus.setText(statustxt);
 	}
 	
@@ -993,7 +964,8 @@ public class MappedPlaces extends JFrame {
      * @param args
      */
     public static void main(String[] args) {
-	Locale.setDefault(currentLocale);
-	new MappedPlaces(msgStrings.getString("MainTitle")); 					//$NON-NLS-1$
+//	Locale.setDefault(currentLocale);
+	new MappedPlaces(msgStrings.getString("MainTitle"));
     }
+
 }

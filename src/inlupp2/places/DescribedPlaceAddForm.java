@@ -1,23 +1,34 @@
+/**
+ * Inlämningsuppgift 2 i PROG2: 
+ * 
+ * 	Mapped Places
+ *
+ * @author Victor Sago, <a href="mailto:VictorSago01@gmail.com">VictorSago01@gmail.com</a>
+ */
+
 package inlupp2.places;
 
-import java.awt.BorderLayout;
 import inlupp2.MappedPlaces;
-//import javax.swing.BoxLayout;
-import javax.swing.JLabel;
-import javax.swing.JPanel;
-import javax.swing.JScrollPane;
-import javax.swing.JTextArea;
+import java.awt.BorderLayout;
+import javax.swing.*;
 
-@SuppressWarnings("serial")
+/**
+ * <code>public class DescribedPlaceAddForm<code><br>
+ * <code>extends PlaceAddForm<code><br><br>
+ * An input form for adding objects of the class <code>DescribedPlace<code>.
+ * @author Victor Sago, <a href="mailto:VictorSago01@gmail.com">VictorSago01@gmail.com</a>
+ */
 public class DescribedPlaceAddForm extends PlaceAddForm {
 
+    private static final long serialVersionUID = 1L;
+    
     JTextArea taPlaceDescription = new JTextArea(6, 16);
     
     public DescribedPlaceAddForm() {
 	super();
 	JPanel pnlMiddle = new JPanel();
 	pnlMiddle.setLayout(new BorderLayout(2, 2));
-	JLabel labelDescription = new JLabel(MappedPlaces.msgStrings.getString("dlgPlaceDescription")); //$NON-NLS-1$
+	JLabel labelDescription = new JLabel(MappedPlaces.msgStrings.getString("dlgPlaceDescription"));
 	pnlMiddle.add(labelDescription, BorderLayout.NORTH);
 	taPlaceDescription.setLineWrap(true);
 	taPlaceDescription.setWrapStyleWord(true);
@@ -31,4 +42,5 @@ public class DescribedPlaceAddForm extends PlaceAddForm {
     public String getDescription() {
 	return taPlaceDescription.getText();
     }
+
 }

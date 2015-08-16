@@ -1,107 +1,107 @@
 /**
+ * Inlämningsuppgift 2 i PROG2: 
  * 
- */
-/**
- * @author Victor Sago
+ * 	Mapped Places
  *
+ * @author Victor Sago, <a href="mailto:VictorSago01@gmail.com">VictorSago01@gmail.com</a>
  */
 
 package inlupp2.places;
 
-import inlupp2.resources.StringUtils;
+import inlupp2.resources.StringHelper;
 
-import java.awt.Color;
-import java.awt.Dimension;
-import java.awt.FontMetrics;
-import java.awt.Graphics;
-//import javax.swing.JTextArea;
-//import javax.swing.BorderFactory;
-//import javax.swing.border.Border;
+import java.awt.*;
 import java.util.ArrayList;
-
+/**
+ * <code>public class DescribedPlace<code><br>
+ * <code>extends Place<code><br><br>
+ * This class describes <code>DescribedPlace<code> objects.<br>
+ * It is an extension of the Place class. It adds a description attribute.
+ * @author Victor Sago, <a href="mailto:VictorSago01@gmail.com">VictorSago01@gmail.com</a>
+ */
 public class DescribedPlace extends Place {
-    
-    private static final long serialVersionUID = 4L;
-    
+
+    private static final long serialVersionUID = 3817375932283600404L;
+
     private String description;
     
-    // Test 2015-07-27
+    // Description split into lines to facilitate painting this object in unfolded state
     private ArrayList<String> descriptionSplit;
     
+    // Multiplication factor for unfolded state
+    //   Basic width of a folded component is multiplied 
+    // 		by this factors to get standard unfolded width
     private static final int UNFOLDED_WMULT 	= 5;
-//    private static final int UNFOLDED_HMULT 	= 10;
     
-    protected static final int HMARGIN = 4;
-    protected static final int VMARGIN = 2;
+    protected static final int HMARGIN = 4;		// Horizontal and vertical margins between text and outer edges
+    protected static final int VMARGIN = 2;		// 	in the unfolded state
     
+    // The background color in the unfolded state
     private static final Color UNFOLDED_BACKGROUND = new Color(1.0f, 1.0f, 0.0f, 0.75f);
-    
-    /**
-     * private constructor to prevent instantiation without attributes
-     */
-    @SuppressWarnings("unused")
-    private DescribedPlace() {
-    }
 
     /**
-     * @param name
+     * <code>protected DescribedPlace(String name, Position pos)<code><br><br>
+     * Constructs a new uncategorized object of this class with specified name and at specified location.<br>
+     * Delegates to the 4-argument constructor with the third argument as <code>null<code>
+     *  and the last argument as an empty string.
+     * @param name - The name of the object to be constructed
+     * @param pos - The location of the object to be constructed
      */
-    @SuppressWarnings("unused")
-    private DescribedPlace(String name) {
-    }
-
-    /**
-     * @param name
-     * @param pos
-     */
-    public DescribedPlace(String name, PlacePosition pos) {
+    protected DescribedPlace(String name, Position pos) {
 	this(name, pos, null, "");
-	// TODO Auto-generated constructor stub
     }
 
     /**
-     * @param name
-     * @param pos
-     * @param cat
+     * <code>protected DescribedPlace(String name, Position pos, Category cat)<code><br><br>
+     * Constructs a new object of this class with specified name and category and at specified location.<br>
+     * Delegates to the 4-argument constructor with the last argument as an empty string.
+     * @param name - The name of the object to be constructed
+     * @param pos - The location of the object to be constructed
+     * @param cat - The location of the object to be constructed
      */
-    public DescribedPlace(String name, PlacePosition pos, PlaceCategory cat) {
+    protected DescribedPlace(String name, Position pos, Category cat) {
 	this(name, pos, cat, "");
-	// TODO Auto-generated constructor stub
     }
     
     /**
-     * @param name
-     * @param pos
-     * @param descr
+     * <code>protected DescribedPlace(String name, Position pos, Category cat)<code><br><br>
+     * Constructs a new object of this class with specified name and at specified location.<br>
+     * @param name - The name of the object to be constructed
+     * @param pos - The location of the object to be constructed
+     * @param descr - The description of the new object
      */
-    public DescribedPlace(String name, PlacePosition pos, String descr) {
+    protected DescribedPlace(String name, Position pos, String descr) {
 	super(name, pos, null);
 	this.description = descr;
     }
     
     /**
-     * @param name
-     * @param pos
-     * @param cat
-     * @param descr
+     * <code>public DescribedPlace(String name, Position pos, Category cat, String descr)<code><br><br>
+     * Constructs a new object of this class with specified name, category and description at specified location.<br>
+     * @param name - The name of the object to be constructed
+     * @param pos - The location of the object to be constructed
+     * @param cat - The location of the object to be constructed
+     * @param descr - The description of the new object
      */
-    public DescribedPlace(String name, PlacePosition pos, PlaceCategory cat, String descr) {
+    public DescribedPlace(String name, Position pos, Category cat, String descr) {
 	super(name, pos, cat);
 	this.description = descr;
     }
         
     protected void unfold() {	
-	int x0 = (int) (position.getX() - BASIC_WIDTH/2 - BORDER_THICKNESS);
-	int y0 = (int) (position.getY() - BASIC_HEIGHT - BORDER_THICKNESS);
+	int x0 = position.getX() - BASIC_WIDTH/2 - BORDER_THICKNESS;
+	int y0 = position.getY() - BASIC_HEIGHT - BORDER_THICKNESS;
 	
 	int wi = BASIC_WIDTH * UNFOLDED_WMULT + BORDER_THICKNESS*2;
 	
-	// Test 2015-07-27
 	FontMetrics fm = this.getFontMetrics(getFont());
-	descriptionSplit = new ArrayList<String>(StringUtils.wrap(description, fm, wi - BORDER_THICKNESS*2 - HMARGIN*2));
+	// Split description into lines
+	descriptionSplit = new ArrayList<String>(StringHelper.wrap(description, fm, wi - BORDER_THICKNESS*2 - HMARGIN*2));
 	
 	int hi = fm.getHeight() * (descriptionSplit.size()+1) + BORDER_THICKNESS*2 + VMARGIN*2;
 	
+	// If this object's borders are outside the map's borders 
+	// 	move the left upper corner so that the object fits fully within the map.
 	Dimension dim = this.getParent().getSize();
 	if (x0 < 0) {
 	    x0 = 0;
@@ -127,7 +127,8 @@ public class DescribedPlace extends Place {
 	    this.setOpaque(true);
 	    
 	    g.setColor(UNFOLDED_BACKGROUND);
-	    g.fillRect(BORDER_THICKNESS, BORDER_THICKNESS, this.getWidth()-BORDER_THICKNESS*2-1, this.getHeight()-BORDER_THICKNESS*2-1);
+	    g.fillRect(BORDER_THICKNESS, BORDER_THICKNESS, 
+		    this.getWidth()-BORDER_THICKNESS*2-1, this.getHeight()-BORDER_THICKNESS*2-1);
 	    g.setColor(colOut);
 	    
 	    int fontHeight = g.getFontMetrics().getHeight();
@@ -135,22 +136,16 @@ public class DescribedPlace extends Place {
 	    for (int i = 0; i < descriptionSplit.size(); i++) {
 		g.drawString(descriptionSplit.get(i), BORDER_THICKNESS + HMARGIN, fontHeight*(i+2)+VMARGIN);
 	    }
-	    
-	    if (this.selected) {
-		this.setBorder(Place.selectedBorder);
-	    } else {
-		this.setBorder(Place.unselectedBorder);
-	    }
 	}
     }
 
+    /**
+     * @return The description of this Place object
+     */
     public String getDescription() {
 	return this.description;
     }
 
-    /* (non-Javadoc)
-     * @see java.lang.Object#equals(java.lang.Object)
-     */
     @Override
     public boolean equals(Object other) {
 	if (this == other) {
@@ -189,24 +184,20 @@ public class DescribedPlace extends Place {
     }
 
     
-    /* (non-Javadoc)
-     * @see java.lang.Object#hashCode()
-     */
     @Override
     public int hashCode() {
 	final int prime = 31;
 	int result = super.hashCode();
-	result = prime * result + ((description == null) ? 0 : description.hashCode());
+	result = prime * result + ((description == null) ? -prime : description.hashCode());
 	return result;
     }
 
     @Override
     public String toString() {
-	String ret = "Described: " + name + " " + position.toString();
-	ret += " " + (category != null ? category.toString() : "Uncategorized");
-	ret += folded ? " folded" : " unfolded";
-	ret += selected ? " selected" : "";
-	ret += isVisible() ? " visible" : "";
+	String ret = name + " " + position.toString();
+	ret += (category != null ? " " + category.toString() : "");
+	ret += ": \"" + description.substring(0, 10) + "...\"";
 	return ret;
     }
+    
 }

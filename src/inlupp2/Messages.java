@@ -1,18 +1,23 @@
 /**
+ * Inlämningsuppgift 2 i PROG2: 
  * 
- */
-/**
- * @author Victor Sago
+ * 	Mapped Places
  *
+ * @author Victor Sago, <a href="mailto:VictorSago01@gmail.com">VictorSago01@gmail.com</a>
  */
+
 package inlupp2;
 
-import java.util.MissingResourceException;
-import java.util.ResourceBundle;
+import java.util.*;
 
+/**
+ * <code>public class Messages<code><br>
+ * This class provides internationalization for strings and messages used in the main class.<br>
+ * @author Victor Sago, <a href="mailto:VictorSago01@gmail.com">VictorSago01@gmail.com</a>
+ */
 public class Messages {
     
-    private static final String         BUNDLE_NAME     = "inlupp2.resurces.messages";                   //$NON-NLS-1$
+    private static final String         BUNDLE_NAME     = "inlupp2.resurces.messages";
 
     private static final ResourceBundle RESOURCE_BUNDLE = ResourceBundle.getBundle(BUNDLE_NAME);
 
@@ -26,4 +31,5 @@ public class Messages {
 	    return '!' + key + '!';
 	}
     }
+
 }

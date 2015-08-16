@@ -30,6 +30,88 @@ from 	MapPanel.paintComponent(Graphics g)
 //		}
 */
 
+Line 150:
+    /**
+     * Unused
+     * @param cats The categories to add to this <code>MapPanel<code>
+     */
+    public void setCategories(Collection<PlaceCategory> cats) {
+        Iterator<PlaceCategory> iter = cats.iterator();
+        while (iter.hasNext()) {
+            placesByCategory.putIfAbsent(iter.next(), new ArrayList<Place>());
+        }
+    }
+
+Line 235:
+    /**
+     * @return the placesByPosition Map
+     */
+//    public Map<PlacePosition, Place> getAllPlacesByPos() {
+//        return placesByPosition;
+//    }
+    
+    /**
+     * @return the placesByName Map
+     */    
+//    public Map<String, List<Place>> getAllPlacesByName() {
+//        return placesByName;
+//    }
+
+Line 312:
+    // TODO Unused
+    public void removePlace(Place pl) {
+	// TODO
+	String name = pl.getName();
+	PlacePosition pos = pl.getPosition();
+	List<Place> li = placesByName.get(name);
+	Place first = placesByPosition.remove(pos);
+	boolean second = li.remove(pl);
+	String liststate = "non-empty ";
+	if (li.isEmpty()) {
+	    placesByName.remove(name);
+	    liststate = "empty ";
+	}
+	boolean third = selectedPlaces.remove(pl);
+	this.remove(pl);
+	modified = true;
+	System.out.println("placesByPosition.remove(pos): " + first + " " + second + " " + liststate + third);
+    }
+
+    // TODO Unused
+    public Place removePlace(PlacePosition pos) {
+	// TODO
+	Place ret = placesByPosition.remove(pos);
+	if (ret != null) {	    
+	    modified = true;
+	}
+	return ret;
+    }
+
+Line 369:
+    // TODO Unused
+    public void removeSelected() {
+	System.out.println("removeSlected()...");
+	Iterator<Place> iter = selectedPlaces.iterator();
+	while (iter.hasNext()) {
+	    Place p = iter.next();
+	    String name = p.getName();
+	    PlacePosition pos = p.getPosition();
+	    List<Place> li = placesByName.get(name);
+	    Place first = placesByPosition.remove(pos);
+	    boolean second = li.remove(p);
+	    String liststate = "non-empty;";
+	    if (li.isEmpty()) {
+		placesByName.remove(name);
+		liststate = "empty;";
+	    }
+	    this.remove(p);
+	    modified = true;
+	    System.out.println(first + " " + second + " " + liststate);
+	}
+	selectedPlaces.clear();
+	revalidate();
+    }
+
 //		public Place addPlace(PlacePosition pos, Place place) {
 //			Place ret = positionedPlaces.putIfAbsent(pos, place);
 //			if (ret == null) {
@@ -125,7 +207,28 @@ from 	MapPanel.paintComponent(Graphics g)
 //        	this.selectedPlaces = selectedPlaces;
 //    	}
 
+from MapPanel.saveData(String filePath):
+//	oos.writeObject(mapImage);
+	// Save categories
+//	oos.writeObject(categories);
+
+from MapPanel.saveData(File docfile):
+//	oos.writeObject(mapImage);
+	// Save categories
+//	oos.writeObject(categories);
+	setPreferredSize(new Dimension(mapImage.getWidth(this), mapImage.getHeight(this)));
+
+from MapPanel.loadData(String filePath):
+//	mapImage = (Image)ois.readObject();
+	// Load categories
+//	this.categories = (ArrayList<PlaceCategory>)ois.readObject();
+
+
 from MapPanel.loadData(File docfile)
+//	mapImage = (Image)ois.readObject();
+	// Load categories
+//	this.categories = (ArrayList<PlaceCategory>)ois.readObject();
+
 //	At the end of the method
 //	Proved unnecessary
 
@@ -160,6 +263,19 @@ Line 50:
     // Test 2015-07-12
     // Add JScrollPane around the map
 //	private JScrollPane spCentralArea;
+
+Line 246:
+    /**
+     * @param title
+     * @param gc
+     */
+    /*
+    public MappedPlaces(String title, GraphicsConfiguration gc) {
+	super(title, gc);
+	// TODO Auto-generated constructor stub
+    }
+    */
+    
 
 from MappedPlaces.MappedPlaces(String title)
 //	JComponent.setDefaultLocale(currentLocale);
@@ -250,7 +366,98 @@ Line 369:
 Line 383:
 //		filename = file.getName();
 
-
+from MappedPlaces$CreatePlaceListener
+//	public void mouseClicked(MouseEvent mev) {
+//	    // determine click position and create new Position object
+//	    int x = mev.getX();
+//	    int y = mev.getY();
+//	    PlacePosition newPos = new PlacePosition(x, y);
+//
+//	    // Determine chosen placeType: read the combobox choice
+//	    String placeType = (String)cbxPlaceTypes.getSelectedItem();
+//	    
+//	    // Determine if a category is selected and which one it is
+//	    PlaceCategory currentCat = null;
+//	    if (lstCategories.getSelectedIndex() != -1) {
+//		currentCat = lstCategories.getSelectedValue();
+//	    }
+//	    
+//	    // create place of chosen type and category
+//	    Place newPlace;
+//	    if (placeType.equalsIgnoreCase(msgStrings.getString("cbxNamedPlaces"))) { 			//$NON-NLS-1$
+//		NamedPlaceAddForm inputFrm = new NamedPlaceAddForm();
+//		int dlgResult = JOptionPane.showConfirmDialog(MappedPlaces.this, inputFrm, 
+//					msgStrings.getString("strNewNamedPlace"),			//$NON-NLS-1$
+//					JOptionPane.OK_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE); 
+//		if (dlgResult == JOptionPane.OK_OPTION) {
+//		    String newPlaceName = inputFrm.getName();
+//		    if (newPlaceName == "") {   							//$NON-NLS-1$
+//			JOptionPane.showMessageDialog(MappedPlaces.this, msgStrings.getString("msgNewPlaceErr"),  //$NON-NLS-1$
+//	    			msgStrings.getString("dlgPlaceErrTitle"), JOptionPane.ERROR_MESSAGE); 	//$NON-NLS-1$
+//			return;
+//		    }
+//		    // if a category is selected
+//		    if (currentCat != null) {
+//			// Create Named Place of selected category
+//			newPlace = new NamedPlace(newPlaceName, newPos, currentCat);			
+//		    } else {
+//			// otherwise create Named Place without category
+//			newPlace = new NamedPlace(newPlaceName, newPos);
+//		    }
+//		    pnlMainPane.addPlace(newPos, newPlaceName, newPlace);
+//		    lblStatus.setText(msgStrings.getString("msgStatusCreated1") 			//$NON-NLS-1$
+//			    + newPlace.getName() + msgStrings.getString("msgStatusCreated2"));		//$NON-NLS-1$
+//		    newPlace.addMouseListener(placeListener);
+//		}
+//	    } else if (placeType.equalsIgnoreCase(msgStrings.getString("cbxDescribedPlaces"))) { 	//$NON-NLS-1$
+//		DescribedPlaceAddForm inputFrm = new DescribedPlaceAddForm();
+//		int dlgResult = JOptionPane.showConfirmDialog(MappedPlaces.this, inputFrm, 
+//					msgStrings.getString("strNewDescribedPlace"),			//$NON-NLS-1$
+//					JOptionPane.OK_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE); 
+//		if (dlgResult == JOptionPane.OK_OPTION) {
+//		    String newPlaceName = inputFrm.getName();
+//		    String newPlaceDescription = inputFrm.getDescription();
+//		    if (newPlaceName == "") {   							//$NON-NLS-1$
+//			JOptionPane.showMessageDialog(MappedPlaces.this, msgStrings.getString("msgNewPlaceErr"),  //$NON-NLS-1$
+//	    			msgStrings.getString("dlgPlaceErrTitle"), JOptionPane.ERROR_MESSAGE); 	//$NON-NLS-1$
+//			return;
+//		    }
+//		    if (newPlaceDescription == "") {   							//$NON-NLS-1$
+//			JOptionPane.showMessageDialog(MappedPlaces.this, 
+//	    			msgStrings.getString("msgNewMissingDescription"),  			//$NON-NLS-1$
+//	    			msgStrings.getString("dlgPlaceErrTitle"), JOptionPane.ERROR_MESSAGE); 	//$NON-NLS-1$
+//			return;
+//		    }
+//		    // if a category is selected
+//		    if (currentCat != null) {
+//			// Create Described Place of selected category
+//			newPlace = new DescribedPlace(newPlaceName, newPos, currentCat, newPlaceDescription);						
+//		    } else {
+//			// otherwise create Described Place without category
+//			newPlace = new DescribedPlace(newPlaceName, newPos, newPlaceDescription);
+//		    }		    
+//		    pnlMainPane.addPlace(newPos, newPlaceName, newPlace);
+//		    lblStatus.setText(msgStrings.getString("msgStatusCreated1")				//$NON-NLS-1$
+//			    + newPlaceName + msgStrings.getString("msgStatusCreated2"));		//$NON-NLS-1$
+//		    newPlace.addMouseListener(placeListener);
+//		}
+//	    } else {
+//		JOptionPane.showMessageDialog(MappedPlaces.this, 
+//			msgStrings.getString("msgNoPlaceType"), 					//$NON-NLS-1$
+//			msgStrings.getString("msgError"), JOptionPane.ERROR_MESSAGE);  			//$NON-NLS-1$
+//	    }	    
+//	    if (!(miSave.isEnabled() && miSaveAs.isEnabled())) {
+//		miSave.setEnabled(true);
+//		miSaveAs.setEnabled(true);
+//	    }
+//	    
+//	    pnlMainPane.removeMouseListener(placeCreator);
+//	    pnlMainPane.setCursor(Cursor.getDefaultCursor());
+//	    cbxPlaceTypes.addActionListener(chooseType);
+//	    cbxPlaceTypes.setEnabled(true);
+//	    pnlMainPane.revalidate();
+//	    pnlMainPane.repaint();
+//	}
 from MappedPlaces.SearchListener.actionPerformed(ActionEvent aev)
 Line 594:
 	    System.out.println("Searching: " + name);
@@ -289,6 +496,41 @@ from Place.paintComponent(Graphics g)
 Line 131:
 //	Color colOut;
 //	Color colIn;
+Line 140:
+	if (this.category != null)
+	    if (this.category.isHidden())
+		return;
+
+**************
+from Place.java
+Latest changes
+**************
+    // Size difference between inner and outer triangle
+    protected static final int INNER_DISTANCE = 1;
+	protected int[] xPoints, yPoints, xiPoints, yiPoints, xi2Points, yi2Points;
+	
+from the constructor
+Line 103:
+	xiPoints = new int[3];
+	yiPoints = new int[3];
+	xiPoints[0] = xPoints[0];
+	yiPoints[0] = yPoints[0] - INNER_DISTANCE;
+	xiPoints[1] = xPoints[1] + INNER_DISTANCE;
+	yiPoints[1] = yPoints[1] + INNER_DISTANCE;
+	xiPoints[2] = xPoints[2] - INNER_DISTANCE;
+	yiPoints[2] = yPoints[2] + INNER_DISTANCE;
+	xi2Points = new int[3];
+	yi2Points = new int[3];
+	xi2Points[0] = xPoints[0];
+	yi2Points[0] = yPoints[0] - INNER_DISTANCE*2;
+	xi2Points[1] = xPoints[1] + INNER_DISTANCE*2;
+	yi2Points[1] = yPoints[1] + INNER_DISTANCE*2;
+	xi2Points[2] = xPoints[2] - INNER_DISTANCE*2;
+	yi2Points[2] = yPoints[2] + INNER_DISTANCE*2;
+
+from Place.paintComponent(Graphics g)
+Line 153:
+//	g.drawPolygon(xi2Points, yi2Points, 3);
 
 Line 132:
 	// The points of the triangle are defined in the following order:
@@ -306,7 +548,13 @@ Line 132:
 //	}
 //	int newAlpha = (int) (colOut.getAlpha()*alphaRel);
 //	colIn = new Color(colOut.getRed(), colOut.getGreen(), colOut.getBlue(), newAlpha);
-	
+
+from Place.toString():
+Line 296:
+	ret += folded ? " folded" : " unfolded";
+	ret += selected ? " selected" : "";
+	ret += isVisible() ? " visible" : "";
+
 Alternative (older) paintComponent definition on line 146:
 //		protected void paintComponent(Graphics g) {
 //			System.out.print("a1 ");
@@ -400,6 +648,54 @@ Alternative (older) definitions of equals on line 253:
 //			}
 //			return true;
 // 		}
+
+
+**************
+from Position.java
+**************
+    
+    /*
+     * 
+     * Move a position to new coordinates:
+     * newX = x
+     * newY = y
+     */
+    /*
+    public void move(int x, int y) {
+	// TODO
+    }
+    */
+    
+    /*
+     * 
+     * Move a position to new coordinates:
+     * newX = oldX + dx
+     * newY = oldY + dy
+     */
+    /*
+    public void translate(int dx, int dy) {
+	// TODO
+    }
+    */
+
+**************
+from Category.java
+**************
+
+    /**
+     * @return the hidden
+     */
+    public boolean isHidden() {
+	return hidden;
+    }
+
+    /**
+     * @param hidden the hidden to set
+     */
+    public void setHidden(boolean hidden) {
+	this.hidden = hidden;
+    }
+
 
 **************
 from NamedPlace.java
@@ -526,6 +822,11 @@ Older definition of equals on line 201:
 from CategoryListRenderer.java
 **************    
 from CategoryListRenderer.getListCellRendererComponent(JList<? extends Object> list, Object value, int index, boolean isSelected, boolean cellHasFocus):
+Line 120:
+	if (cat.isHidden()) {
+	    setForeground(Color.GRAY);
+	}
+
 Line 125:
 //	System.out.println("" + this.getHeight() + " " + d + " " + h);
 
