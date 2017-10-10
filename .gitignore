@@ -1,6 +1,16 @@
 # bin directory
 bin
 
+# Eclipse specific
+.settings
+.project
+.classpath
+
+# Compiled
+*.jar
+*.class
+
+
 # UML files created by other programs
 /Places.xmi
 /Places.uml
